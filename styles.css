@@ -49,3 +49,8 @@ body{
 .feu{
     fill:red;
 }
+
+.inconnu{
+    filter: brightness(0.4);
+}
+
