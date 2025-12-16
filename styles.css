@@ -1,0 +1,31 @@
+body{
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+#map{
+    display: block;
+    margin: auto;
+}
+
+#properties{
+    border: solid 1px;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 10px auto;
+    width: 40%;
+}
+
+#properties > p {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.inputs{
+    margin: 5px auto;
+    display: flex;
+    justify-content: center;
+    gap:10px;
+    align-items: center;
+}
