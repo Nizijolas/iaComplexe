@@ -15,14 +15,13 @@
     <div id="properties">
         <p> Paramètres de la simulation : </p>
         <div class="inputs">
-            <label for="propagation"> propagation des anomalies </label><input type="checkbox">
+            <label for="propagation"> propagation des anomalies </label><input type="checkbox" id="propagation">
         </div>
         <div class="inputs">
-            <label for="vitesse"> vitesse : </label><input type="range">
+            <label for="vitesse"> vitesse : </label><input type="range" id="vitesse" min="1" max="100">
         </div>
     </div>
-
-    <button> Lancer simulation </button>
+    <button id="lancerSimulation"> Lancer simulation </button>
 </body>
 <script src="/js/index.js"></script>
 

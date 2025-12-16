@@ -3,10 +3,13 @@ body{
     justify-content: center;
     align-items: center;
     text-align: center;
+    color: white;
+    background-color: rgb(116, 116, 116);
 }
 #map{
     display: block;
     margin: auto;
+    border: solid 2px white;
 }
 
 #properties{
@@ -28,4 +31,21 @@ body{
     justify-content: center;
     gap:10px;
     align-items: center;
+}
+
+/* classe des éléments */
+.base{
+    fill: lightblue;
+}
+
+.drone{
+    fill:white
+}
+
+.arbre{
+    fill:green;
+}
+
+.feu{
+    fill:red;
 }
