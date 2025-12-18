@@ -55,8 +55,8 @@ export class Drone {
         //Mise à jour de sa vision (il n'a pas encore bougé, mais un autre drone a pu éteindre un feu entre temps)
         this.update_vision();
         //Il y a un feu à côté : il va sur lui
-        if (this.get_close_fire()) {
-            let fire = this.get_close_fire();
+        let fire = this.get_close_fire();
+        if (fire) {
             this.update_position_with_coord(fire.x, fire.y);
             carburant += -1;
             return;
@@ -185,7 +185,7 @@ export class Drone {
     }
 
 
-    
+
     update_position_with_coord(x, y) {
         document.getElementById(`${this.#x}:${this.#y}`).classList.remove("drone");
         this.#x = x; this.#y = y;
