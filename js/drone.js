@@ -1,6 +1,5 @@
 //ici faire la logique pour un drone
-import { vraie_map } from "./index";
-import { empty_map } from "./maps/create_map";
+import { vraie_map } from "./index.js";
 
 export class Drone {
 
@@ -14,14 +13,15 @@ export class Drone {
 
     //J'imagine qu'il aura sa propre carte comme attribut.
 
-    constructor(taille_vision, carburant, goal, x = 0, y = 0) {
+    constructor(taille_vision, carburant, goalx, goaly, taille_map, x = 0, y = 0) {
         this.#x = x;
         this.#y = y;
-        this.#map = empty_map();
+        this.#map = this.create_map(taille_map);
         this.#taille_vision = taille_vision;
         this.update_vision(taille_vision);
         this.#carburant = carburant;
-        this.#goal = goal;
+        this.#goal = { x: goalx, y: goaly, score: 2 };
+
     }
 
     get x() {
@@ -66,7 +66,10 @@ export class Drone {
         if (this.#goal == null || this.#goal.score < 5) {
             //pas d'objectif plus important que l'exploration, il faut donc aller dans une direction à explorer aléatoire
             let unknwown_tiles = this.get_unknwown_tiles();
+            console.log("unknow tiles : ")
+            console.log(unknwown_tiles)
             let random_index = Math.floor(Math.random() * unknwown_tiles.length);
+            console.log("random : " + random_index)
             //Mise à jour de l'objectif
             this.#goal = { x: unknwown_tiles[random_index].x, y: unknwown_tiles[random_index].y, score: 5 };
         }
@@ -80,13 +83,19 @@ export class Drone {
     get_unknwown_tiles() {
         //On regarde les cases non explorées
         let unknwown_tiles = [];
+        console.log(vraie_map[0][2])
+
         //parcours de bourrin, mais ça simplifie si on veut changer taille_vision
-        for (let i = -(this.#taille_vision + 1); i < this.#taille_vision + 1; i += 1) {
-            for (let j = -(this.#taille_vision + 1); j < this / this.#taille_vision + 1; j += 1) {
+        for (let i = -(this.#taille_vision + 1); i <= this.#taille_vision + 1; i += 1) {
+            for (let j = -(this.#taille_vision + 1); j <= this.#taille_vision + 1; j += 1) {
                 if (this.#x + i >= 0 && this.#x + i < this.#map.length &&
-                    this.#y + i >= 0 && this.#y + i < this.#map.length &&
-                    this.#map[this.#x + i][this.#y + j] == null) {
-                    unknwown_tiles.push({ x: this.#x + i, y: this.#y + y });
+                    this.#y + j >= 0 && this.#y + j < this.#map.length &&
+                    this.#map[this.#x + i][this.#y + j] == undefined) {
+                    console.log(`i : ${this.#x + i}, j : ${this.#y + j}`)
+                    console.log(vraie_map[this.#x + i][this.#y + j])
+                    console.log(vraie_map[0][2])
+
+                    unknwown_tiles.push({ x: this.#x + i, y: this.#y + j });
                 }
             }
         }
@@ -99,9 +108,9 @@ export class Drone {
             for (let j = - this.#taille_vision; j <= this.#taille_vision; j += 1) {
 
                 if (this.#x + i >= 0 && this.#x + i < this.#map.length &&
-                    y + j >= 0 && y + j < this.#map.length && this.#map[x + i][y + j] == null) {
+                    this.#y + j >= 0 && this.#y + j < this.#map.length && this.#map[this.#x + i][this.#y + j] == null) {
                     //On met tout à jour, pour pouvoir faire des feux qui grandissent s on veut plus tard
-                    this.#map[x + i][y + j] = vraie_map[x + i][y + j];
+                    this.#map[this.#x + i][this.#y + j] = vraie_map[this.#x + i][this.#y + j];
 
                 }
             }
@@ -113,11 +122,11 @@ export class Drone {
         //Est-ce qu'on voit un feu ?
         let fire_tile;
         for (let i = -1; i <= 1; i += 1) {
-            for (let y = -1; y <= 1; y += 1) {
-                if (x + i >= 0 && x + i < this.#map.length &&
-                    y + j >= 0 && y + j < this.#map.length &&
-                    this.#map[x + i][y + j] == "feu") {
-                    fire_tile = { x: x + i, u: y + j };
+            for (let j = -1; j <= 1; j += 1) {
+                if (this.#x + i >= 0 && this.#x + i < this.#map.length &&
+                    this.#y + j >= 0 && this.#y + j < this.#map.length &&
+                    this.#map[this.#x + i][this.#y + j] == "feu") {
+                    fire_tile = { x: this.#x + i, u: this.#y + j };
                     return fire_tile;
                 }
             }
@@ -132,39 +141,40 @@ export class Drone {
                 this.update_position_with_direction("GAUCHE");
                 return;
             } else {
-                update_position_with_direction("DROITE");
+                this.update_position_with_direction("DROITE");
                 return;
             }
         }
         if (this.#goal.y == this.#y) {//même colonne
             if (this.#goal.x < this.#x) {
-                this.update_position_with_direction("BAS");
+                this.update_position_with_direction("HAUT");
                 return;
             } else {
-                this.update_position_with_direction("HAUT");
+                this.update_position_with_direction("BAS");
                 return;
             }
         }
         //Et là les cas relous en diagonale
         if (this.#x > this.#goal.x && this.#y > this.#goal.y) {
-            this.update_position_with_direction("HAUT-GAUCHE");
+            this.update_position_with_direction("HAUT-DROITE");
             return;
         }
         if (this.#x > this.#goal.x && this.#y < this.#goal.y) {
-            this.update_position_with_direction("BAS-GAUCHE");
+            this.update_position_with_direction("HAUT-GAUCHE");
             return;
         }
         if (this.#x < this.#goal.x && this.#y > this.#goal.y) {
-            this.update_position_with_direction("BAS-DROITE");
+            this.update_position_with_direction("BAS-GAUCHE");
             return;
         }
         if (this.#x < this.#goal.x && this.#y < this.#goal.y) {
-            this.update_position_with_direction("HAUT-DROITE");
+            this.update_position_with_direction("BAS-DROITE");
             return;
         }
     }
 
     update_position_with_direction(direction) {
+        console.log(direction)
         let new_x = this.#x;
         let new_y = this.#y
         if (direction.includes("HAUT")) {
@@ -179,19 +189,39 @@ export class Drone {
         if (direction.includes("DROITE")) {
             new_x += 1;
         }
-        document.getElementById(`${this.#x}:${this.#y}`).classList.remove("drone");
+        console.log(this.#x, this.#y)
+        let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
+        element_remove.classList.remove("drone");
+        element_remove.classList.remove("inconnu");
+
+        console.log(this.#x, this.#y);
         this.#x = new_x; this.#y = new_y;
-        document.getElementById(`${this.#x}:${this.#y}`).classList.add("drone");
+        console.log(this.#x, this.#y);
+
+        let element_add = document.getElementById(`${this.#x}:${this.#y}`)
+        element_add.classList.add("drone");
     }
 
 
 
     update_position_with_coord(x, y) {
-        document.getElementById(`${this.#x}:${this.#y}`).classList.remove("drone");
+        let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
+        element_remove.classList.remove("drone");
+        element_remove.classList.remove("inconnu");
         this.#x = x; this.#y = y;
-        document.getElementById(`${this.#x}:${this.#y}`).classList.add("drone");
+        let element_add = document.getElementById(`${this.#x}:${this.#y}`)
+        element_add.classList.add("drone");
         if (goal && this.#x == this.#goal.x && this.#y == this.#goal.y) {
             this.#goal == null;
         }
+    }
+
+    create_map(taille_map) {
+        let map = new Array(taille_map);
+        for (let i = 0; i < taille_map; i += 1) {
+            map[i] = new Array(taille_map);
+        }
+        map[0][0] = "base"
+        return map;
     }
 }
