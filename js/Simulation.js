@@ -6,6 +6,8 @@ export class Simulation{
     #drones; // tableau de drones
     #mapGlobal;
 
+
+
     constructor(propagation){
         this.#propagation  = propagation;
         //init drônes
