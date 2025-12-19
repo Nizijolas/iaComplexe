@@ -73,7 +73,7 @@ export class Drone {
             let random_index = Math.floor(Math.random() * unknwown_tiles.length);
             //Mise à jour de l'objectif
 
-            unknwown_tiles.length == 0 ? this.#goal = { x: this.#map.length - 1, y: this.#map.length } :
+            unknwown_tiles.length == 0 ? this.#goal = { x: this.#map.length - 1, y: this.#map.length, score: 3 } :
                 this.#goal = { x: unknwown_tiles[random_index].x, y: unknwown_tiles[random_index].y, score: 5 };
         }
         this.goto_goal();
@@ -83,6 +83,9 @@ export class Drone {
         }
 
         //TODO : et si jamais ya que des cases déjà vue ?on remet un objectif random ?
+
+        console.log("le drone est maintenant en : " + this.#x + ":" + this.#y + " fin du tour")
+
     }
 
 
@@ -196,14 +199,11 @@ export class Drone {
         }
         let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
         element_remove.classList.remove("drone");
-        element_remove.classList.remove("inconnu");
-
         this.#x = new_x; this.#y = new_y;
         console.log(`drone new pos : ${new_x}:${new_y}`)
 
         let element_add = document.getElementById(`${this.#x}:${this.#y}`)
         element_add.classList.add("drone");
-        console.log("le drone est tmaintenant en : " + this.#x + ":" + this.#y + " fin du tour")
     }
 
 
@@ -211,10 +211,11 @@ export class Drone {
     update_position_with_coord(x, y) {
         let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
         element_remove.classList.remove("drone");
-        element_remove.classList.remove("inconnu");
         this.#x = x; this.#y = y;
         let element_add = document.getElementById(`${this.#x}:${this.#y}`)
         element_add.classList.add("drone");
+
+        //Si on est sur l'objectif alors on le reset
         if (goal && this.#x == this.#goal.x && this.#y == this.#goal.y) {
             this.#goal == null;
         }
