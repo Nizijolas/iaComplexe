@@ -77,13 +77,15 @@ setMap();
 const lancerSimulation = document.getElementById("lancerSimulation"); // <-- le boutton
 const vitesseInput = document.getElementById("vitesse");
 const propagationInput = document.getElementById("propagation");
-
+var drone = new Drone(1, 30, 39, 39, tailleMap)
 lancerSimulation.addEventListener("click", () => {
     console.log(vitesseInput.value); // à normaliser du coup et determinera la vitesse de l'interval
     console.log(propagationInput.checked); // true si coché
-    var drone = new Drone(1, 30, 39, 39, tailleMap)
+
     console.log(vraie_map[0][0])
-    setInterval(drone.play_a_turn(), 1000);
+    var interval = setInterval(drone.play_a_turn(), vitesseInput.value);
+    drone.play_a_turn();
+    drone.play_a_turn()
     //a voir si besoin de plus d'input, nombre d'anomalies ? 
 
     // on passe les values des inputs à un constructeur de "Simulation", on passe le boutton lancerSimulation à displayNone

@@ -42,7 +42,9 @@ export class Drone {
 
     play_a_turn() {
         //ya que ça qui sera appelé de l'exérieur, ça fait jouer son tour au drone
+        console.log("debut de tour de drone. Pos : " + this.#x + ":" + this.#y);
 
+        this.#goal == null ? console.log("goale null") : console.log("objectif : " + this.#goal.x + ":" + this.#goal.y)
         //TODO Cas à la con : plus de carburant à intégrer
 
         //Cas prioriataire : le drone est au dessus d'un feu : il l'éteind pendant le tour
@@ -66,15 +68,19 @@ export class Drone {
         if (this.#goal == null || this.#goal.score < 5) {
             //pas d'objectif plus important que l'exploration, il faut donc aller dans une direction à explorer aléatoire
             let unknwown_tiles = this.get_unknwown_tiles();
-            console.log("unknow tiles : ")
+            console.log("unknown_tiles : ")
             console.log(unknwown_tiles)
             let random_index = Math.floor(Math.random() * unknwown_tiles.length);
-            console.log("random : " + random_index)
             //Mise à jour de l'objectif
-            this.#goal = { x: unknwown_tiles[random_index].x, y: unknwown_tiles[random_index].y, score: 5 };
+
+            unknwown_tiles.length == 0 ? this.#goal = { x: this.#map.length - 1, y: this.#map.length } :
+                this.#goal = { x: unknwown_tiles[random_index].x, y: unknwown_tiles[random_index].y, score: 5 };
         }
         this.goto_goal();
-        this.#carburant += -1
+        this.#carburant += -1;
+        if (this.#x == this.#goal.x && this.#y == this.#goal.y) {
+            this.#goal = null;
+        }
 
         //TODO : et si jamais ya que des cases déjà vue ?on remet un objectif random ?
     }
@@ -83,19 +89,16 @@ export class Drone {
     get_unknwown_tiles() {
         //On regarde les cases non explorées
         let unknwown_tiles = [];
-        console.log(vraie_map[0][2])
 
         //parcours de bourrin, mais ça simplifie si on veut changer taille_vision
-        for (let i = -(this.#taille_vision + 1); i <= this.#taille_vision + 1; i += 1) {
-            for (let j = -(this.#taille_vision + 1); j <= this.#taille_vision + 1; j += 1) {
-                if (this.#x + i >= 0 && this.#x + i < this.#map.length &&
-                    this.#y + j >= 0 && this.#y + j < this.#map.length &&
-                    this.#map[this.#x + i][this.#y + j] == undefined) {
-                    console.log(`i : ${this.#x + i}, j : ${this.#y + j}`)
-                    console.log(vraie_map[this.#x + i][this.#y + j])
-                    console.log(vraie_map[0][2])
+        for (let i = this.#x - this.#taille_vision - 1; i <= this.#x + this.#taille_vision + 1; i += 1) {
+            for (let j = this.#y - this.#taille_vision - 1; j <= this.#y + this.#taille_vision + 1; j += 1) {
+                if (i >= 0 && i < this.#map.length &&
+                    j >= 0 && j < this.#map.length &&
+                    this.#map[i][j] == undefined) {
+                    unknwown_tiles.push({ x: i, y: j });
 
-                    unknwown_tiles.push({ x: this.#x + i, y: this.#y + j });
+
                 }
             }
         }
@@ -104,14 +107,16 @@ export class Drone {
 
     update_vision() {
         //met à jour la vision du drone en fonction de taille_vision
-        for (let i = - this.#taille_vision; i <= this.#taille_vision; i += 1) {
-            for (let j = - this.#taille_vision; j <= this.#taille_vision; j += 1) {
+        for (let i = this.#x - this.#taille_vision; i <= this.#x + this.#taille_vision; i += 1) {
+            for (let j = this.#y - this.#taille_vision; j <= this.#y + this.#taille_vision; j += 1) {
 
-                if (this.#x + i >= 0 && this.#x + i < this.#map.length &&
-                    this.#y + j >= 0 && this.#y + j < this.#map.length && this.#map[this.#x + i][this.#y + j] == null) {
+                if (i >= 0 && i < this.#map.length &&
+                    j >= 0 && j < this.#map.length && this.#map[i][j] == null) {
                     //On met tout à jour, pour pouvoir faire des feux qui grandissent s on veut plus tard
-                    this.#map[this.#x + i][this.#y + j] = vraie_map[this.#x + i][this.#y + j];
-
+                    this.#map[i][j] = vraie_map[i][j];
+                    //changement de css pour vraie_map
+                    let elem = document.getElementById(`${i}:${j}`);
+                    elem.classList.remove('inconnu')
                 }
             }
         }
@@ -156,11 +161,11 @@ export class Drone {
         }
         //Et là les cas relous en diagonale
         if (this.#x > this.#goal.x && this.#y > this.#goal.y) {
-            this.update_position_with_direction("HAUT-DROITE");
+            this.update_position_with_direction("HAUT-GAUCHE");
             return;
         }
         if (this.#x > this.#goal.x && this.#y < this.#goal.y) {
-            this.update_position_with_direction("HAUT-GAUCHE");
+            this.update_position_with_direction("HAUT-DROITE");
             return;
         }
         if (this.#x < this.#goal.x && this.#y > this.#goal.y) {
@@ -174,32 +179,31 @@ export class Drone {
     }
 
     update_position_with_direction(direction) {
-        console.log(direction)
+        console.log("Direction demandée : " + direction)
         let new_x = this.#x;
         let new_y = this.#y
         if (direction.includes("HAUT")) {
-            new_y += -1;
-        }
-        if (direction.includes("BAS")) {
-            new_y += 1;
-        }
-        if (direction.includes("GAUCHE")) {
             new_x += -1;
         }
-        if (direction.includes("DROITE")) {
+        if (direction.includes("BAS")) {
             new_x += 1;
         }
-        console.log(this.#x, this.#y)
+        if (direction.includes("GAUCHE")) {
+            new_y += -1;
+        }
+        if (direction.includes("DROITE")) {
+            new_y += 1;
+        }
         let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
         element_remove.classList.remove("drone");
         element_remove.classList.remove("inconnu");
 
-        console.log(this.#x, this.#y);
         this.#x = new_x; this.#y = new_y;
-        console.log(this.#x, this.#y);
+        console.log(`drone new pos : ${new_x}:${new_y}`)
 
         let element_add = document.getElementById(`${this.#x}:${this.#y}`)
         element_add.classList.add("drone");
+        console.log("le drone est tmaintenant en : " + this.#x + ":" + this.#y + " fin du tour")
     }
 
 
