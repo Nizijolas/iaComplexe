@@ -48,8 +48,11 @@ export class Drone {
         //TODO Cas à la con : plus de carburant à intégrer
 
         //Cas prioriataire : le drone est au dessus d'un feu : il l'éteind pendant le tour
-        if (vraie_map[this.#x][this.#y] == "feu") {
-            vraie_map[this.#x][this.#y] == "cendres"
+        if (vraie_map[this.#y][this.#x] == "feu") {
+            vraie_map[this.#y][this.#x] = "cendres";
+            this.#map[this.#y][this.#x] = "cendres";
+            let elem = document.getElementById(`${this.#x}:${this.#y}`);
+            elem.classList.replace("feu", "cendres");
             this.#carburant += -1;
             return;
         }
@@ -59,8 +62,9 @@ export class Drone {
         //Il y a un feu à côté : il va sur lui
         let fire = this.get_close_fire();
         if (fire) {
+            console.log(vraie_map[this.#y][this.#x]);
             this.update_position_with_coord(fire.x, fire.y);
-            carburant += -1;
+            this.#carburant += -1;
             return;
 
         }
@@ -68,12 +72,10 @@ export class Drone {
         if (this.#goal == null || this.#goal.score < 5) {
             //pas d'objectif plus important que l'exploration, il faut donc aller dans une direction à explorer aléatoire
             let unknwown_tiles = this.get_unknwown_tiles();
-            console.log("unknown_tiles : ")
-            console.log(unknwown_tiles)
             let random_index = Math.floor(Math.random() * unknwown_tiles.length);
             //Mise à jour de l'objectif
 
-            unknwown_tiles.length == 0 ? this.#goal = { x: this.#map.length - 1, y: this.#map.length, score: 3 } :
+            unknwown_tiles.length == 0 ? this.#goal = { x: this.#map.length - 1, y: this.#map.length-1, score: 3 } :
                 this.#goal = { x: unknwown_tiles[random_index].x, y: unknwown_tiles[random_index].y, score: 5 };
         }
         this.goto_goal();
@@ -94,12 +96,12 @@ export class Drone {
         let unknwown_tiles = [];
 
         //parcours de bourrin, mais ça simplifie si on veut changer taille_vision
-        for (let i = this.#x - this.#taille_vision - 1; i <= this.#x + this.#taille_vision + 1; i += 1) {
-            for (let j = this.#y - this.#taille_vision - 1; j <= this.#y + this.#taille_vision + 1; j += 1) {
+        for (let i = this.#y - this.#taille_vision - 1; i <= this.#y + this.#taille_vision + 1; i += 1) {
+            for (let j = this.#x - this.#taille_vision - 1; j <= this.#x + this.#taille_vision + 1; j += 1) {
                 if (i >= 0 && i < this.#map.length &&
                     j >= 0 && j < this.#map.length &&
                     this.#map[i][j] == undefined) {
-                    unknwown_tiles.push({ x: i, y: j });
+                    unknwown_tiles.push({ x: j, y: i });
 
 
                 }
@@ -110,15 +112,15 @@ export class Drone {
 
     update_vision() {
         //met à jour la vision du drone en fonction de taille_vision
-        for (let i = this.#x - this.#taille_vision; i <= this.#x + this.#taille_vision; i += 1) {
-            for (let j = this.#y - this.#taille_vision; j <= this.#y + this.#taille_vision; j += 1) {
+        for (let i = this.#y - this.#taille_vision; i <= this.#y + this.#taille_vision; i += 1) {
+            for (let j = this.#x - this.#taille_vision; j <= this.#x + this.#taille_vision; j += 1) {
 
                 if (i >= 0 && i < this.#map.length &&
                     j >= 0 && j < this.#map.length && this.#map[i][j] == null) {
                     //On met tout à jour, pour pouvoir faire des feux qui grandissent s on veut plus tard
                     this.#map[i][j] = vraie_map[i][j];
                     //changement de css pour vraie_map
-                    let elem = document.getElementById(`${i}:${j}`);
+                    let elem = document.getElementById(`${j}:${i}`);
                     elem.classList.remove('inconnu')
                 }
             }
@@ -131,10 +133,10 @@ export class Drone {
         let fire_tile;
         for (let i = -1; i <= 1; i += 1) {
             for (let j = -1; j <= 1; j += 1) {
-                if (this.#x + i >= 0 && this.#x + i < this.#map.length &&
-                    this.#y + j >= 0 && this.#y + j < this.#map.length &&
-                    this.#map[this.#x + i][this.#y + j] == "feu") {
-                    fire_tile = { x: this.#x + i, u: this.#y + j };
+                if (this.#y + i >= 0 && this.#y + i < this.#map.length &&
+                    this.#x + j >= 0 && this.#x + j < this.#map.length &&
+                    this.#map[this.#y + i][this.#x + j] == "feu") {
+                    fire_tile = { x: this.#x + j, y: this.#y + i };
                     return fire_tile;
                 }
             }
@@ -144,8 +146,8 @@ export class Drone {
 
     goto_goal() {
         // trouve la direction vers l'objectif
-        if (this.#goal.x == this.#x) { //même ligne
-            if (this.#goal.y < this.#y) {
+        if (this.#goal.y == this.#y) { //même ligne
+            if (this.#goal.x < this.#x) {
                 this.update_position_with_direction("GAUCHE");
                 return;
             } else {
@@ -153,8 +155,8 @@ export class Drone {
                 return;
             }
         }
-        if (this.#goal.y == this.#y) {//même colonne
-            if (this.#goal.x < this.#x) {
+        if (this.#goal.x == this.#x) {//même colonne
+            if (this.#goal.y < this.#y) {
                 this.update_position_with_direction("HAUT");
                 return;
             } else {
@@ -163,45 +165,43 @@ export class Drone {
             }
         }
         //Et là les cas relous en diagonale
-        if (this.#x > this.#goal.x && this.#y > this.#goal.y) {
+        if (this.#y > this.#goal.y && this.#x > this.#goal.x) {
             this.update_position_with_direction("HAUT-GAUCHE");
             return;
         }
-        if (this.#x > this.#goal.x && this.#y < this.#goal.y) {
+        if (this.#y > this.#goal.y && this.#x < this.#goal.x) {
             this.update_position_with_direction("HAUT-DROITE");
             return;
         }
-        if (this.#x < this.#goal.x && this.#y > this.#goal.y) {
+        if (this.#y < this.#goal.y && this.#x > this.#goal.x) {
             this.update_position_with_direction("BAS-GAUCHE");
             return;
         }
-        if (this.#x < this.#goal.x && this.#y < this.#goal.y) {
+        if (this.#y < this.#goal.y && this.#x < this.#goal.x) {
             this.update_position_with_direction("BAS-DROITE");
             return;
         }
     }
 
     update_position_with_direction(direction) {
-        console.log("Direction demandée : " + direction)
         let new_x = this.#x;
         let new_y = this.#y
         if (direction.includes("HAUT")) {
-            new_x += -1;
-        }
-        if (direction.includes("BAS")) {
-            new_x += 1;
-        }
-        if (direction.includes("GAUCHE")) {
             new_y += -1;
         }
-        if (direction.includes("DROITE")) {
+        if (direction.includes("BAS")) {
             new_y += 1;
+        }
+        if (direction.includes("GAUCHE")) {
+            new_x += -1;
+        }
+        if (direction.includes("DROITE")) {
+            new_x += 1;
         }
         let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
         element_remove.classList.remove("drone");
         this.#x = new_x; this.#y = new_y;
         console.log(`drone new pos : ${new_x}:${new_y}`)
-
         let element_add = document.getElementById(`${this.#x}:${this.#y}`)
         element_add.classList.add("drone");
     }
@@ -209,14 +209,14 @@ export class Drone {
 
 
     update_position_with_coord(x, y) {
+
         let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
         element_remove.classList.remove("drone");
         this.#x = x; this.#y = y;
         let element_add = document.getElementById(`${this.#x}:${this.#y}`)
         element_add.classList.add("drone");
-
         //Si on est sur l'objectif alors on le reset
-        if (goal && this.#x == this.#goal.x && this.#y == this.#goal.y) {
+        if (this.#goal && this.#x == this.#goal.x && this.#y == this.#goal.y) {
             this.#goal == null;
         }
     }

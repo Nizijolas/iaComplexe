@@ -38,10 +38,6 @@ body{
     fill: lightblue;
 }
 
-.drone{
-    fill:white
-}
-
 .arbre{
     fill:green;
 }
@@ -50,7 +46,15 @@ body{
     fill:red;
 }
 
+.cendres{
+    fill: darkgray;
+}
+
 .inconnu{
     filter: brightness(0.4);
+}
+
+.drone {
+    fill: white
 }
 

@@ -83,12 +83,11 @@ lancerSimulation.addEventListener("click", () => {
     console.log(propagationInput.checked); // true si coché
 
     console.log(vraie_map[0][0])
-    var interval = setInterval(drone.play_a_turn(), vitesseInput.value);
-    drone.play_a_turn();
-    drone.play_a_turn()
-    //a voir si besoin de plus d'input, nombre d'anomalies ? 
-
-    // on passe les values des inputs à un constructeur de "Simulation", on passe le boutton lancerSimulation à displayNone
+    var interval = setInterval(play, vitesseInput.value);
     let simulation = new Simulation(propagationInput.checked); // par exemple
 
 })
+
+function play(){
+    drone.play_a_turn();
+}
