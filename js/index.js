@@ -72,22 +72,45 @@ function setMap() {
 fill_vraie_map();
 create_base_map();
 setMap();
-
+var interval;
+var isRunning = false;
+var simulation;
 // Lancer la simulation en récupérant les inputs
 const lancerSimulation = document.getElementById("lancerSimulation"); // <-- le boutton
-const vitesseInput = document.getElementById("vitesse");
-const propagationInput = document.getElementById("propagation");
-var drone = new Drone(1, 30, 39, 39, tailleMap)
+const stepByStep = document.getElementById("stepByStep"); // <-- boutton pour avancer étape par étape le jeu doit être en pause
+const properties = document.getElementById("properties");
+var vitesse;
 lancerSimulation.addEventListener("click", () => {
-    console.log(vitesseInput.value); // à normaliser du coup et determinera la vitesse de l'interval
-    console.log(propagationInput.checked); // true si coché
-
-    console.log(vraie_map[0][0])
-    var interval = setInterval(play, vitesseInput.value);
-    let simulation = new Simulation(propagationInput.checked); // par exemple
-
+    if (isRunning) { //si la simulation était en cours
+        lancerSimulation.innerText = "Relancer la simulation";
+        clearInterval(interval);
+        isRunning = false;
+        stepByStep.style.display = "block";
+    }
+    else { //On lance ( ou relance ) la simulation 
+        stepByStep.style.display = "none";
+        console.log(vraie_map[0][0])
+        if (!simulation) {
+            // si simulation est undefined c'est que c'est le début sinon c'est qu'on avait mis sur pause;
+            // si première fois qu'on lance on doit créer la simulation et passer les properties à display none;
+            simulation = new Simulation();
+        } 
+        interval = setInterval(play, 150, simulation);
+        lancerSimulation.innerText = "mettre sur pause";
+        isRunning = true;
+    }
 })
 
-function play(){
-    drone.play_a_turn();
+
+stepByStep.addEventListener('click',()=>{
+    if ( !simulation ){
+        simulation = new Simulation();
+    }
+    simulation.update();
+})
+
+function play(simulation) {
+    simulation.update(); //fonction de l'interval
 }
+
+//il faut exporter une fonction endOfSimulation qu'on appellera depuis la simulation

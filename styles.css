@@ -20,10 +20,32 @@ body{
     width: 40%;
 }
 
+#buttonsContainer{
+    display: flex;
+    margin: 10px auto;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 40%;
+}
+
+button {
+    background-color: white;
+    color: black;
+    border-radius: 5px;
+    border: none;
+    padding: 5px;
+    font-weight: bold;
+}
+button:hover{
+    background-color: rgb(136, 136, 136);
+    color: white;
+    cursor: pointer;
+}
 #properties > p {
     text-decoration: underline;
     font-weight: bold;
 }
+
 
 .inputs{
     margin: 5px auto;
