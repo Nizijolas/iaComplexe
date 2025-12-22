@@ -1,6 +1,6 @@
 //ici faire la logique pour un drone
 import { vraie_map } from "./index.js";
-
+import { casesConnus, anomaliesTraitees } from "./Simulation.js";
 export class Drone {
 
     //Position x & y d'un drône
@@ -10,18 +10,22 @@ export class Drone {
     #carburant;
     #taille_vision;
     #goal;
+    #casesConnues = 1; // <----- uniquement tant qu'on lance des simulations à un drône après on pourra l'enlever de la classe drone
+    #simulation;
+
 
     //J'imagine qu'il aura sa propre carte comme attribut.
 
-    constructor(taille_vision, carburant, goalx, goaly, taille_map, x = 0, y = 0) {
+    constructor(taille_vision, carburant, goalx, goaly, taille_map, x = 0, y = 0, simulation) {
         this.#x = x;
         this.#y = y;
         this.#map = this.create_map(taille_map);
         this.#taille_vision = taille_vision;
+        this.#simulation = simulation; // le drône doit un pointeur de la simulation dans laquelle il est
         this.update_vision(taille_vision);
         this.#carburant = carburant;
-        this.#goal = { x: goalx, y: goaly, score: 2 };
-
+        this.#goal = []; // j'ai transformé en tableau
+        this.#goal.push({ x: goalx, y: goaly, score: 2 });
     }
 
     get x() {
@@ -42,51 +46,70 @@ export class Drone {
 
     play_a_turn() {
         //ya que ça qui sera appelé de l'exérieur, ça fait jouer son tour au drone
-        console.log("debut de tour de drone. Pos : " + this.#x + ":" + this.#y);
 
-        this.#goal == null ? console.log("goale null") : console.log("objectif : " + this.#goal.x + ":" + this.#goal.y)
-        //TODO Cas à la con : plus de carburant à intégrer
+        //TODO Cas à la con : plus de carburant à intégrer ----------------------------------------
+        if (this.#carburant == 0) {
+            if (this.#x != 0 || this.#y != 0) {
+                this.#goal.push({ x: 0, y: 0, score: 10 });
+                this.update_vision();// -> il faut quand même update la vision en rentrant
+                this.goto_goal();
+                return;
+            }
+            else { //on refill le carburant + on gère l'histoire des maps;
+                this.#carburant = 40;
+                this.retirerCaseDeGoal(0, 0);
+                if (this.#simulation) { // si on fait test avec drone seul il n'y a pas d'instance de simulation
+                    this.copierInfosManquantesDansCarte();
+                    this.#map = JSON.parse(JSON.stringify(this.#simulation.mapCentreControle));//clone du tableau ( le clonage classique fonctionne pas pour les tableaux imbriqués..)
+                }
+                return;
+            }
+        }
+        //----------------------------------------------------------------------------------------------
+        //Mise à jour de sa vision (il n'a pas encore bougé, mais un autre drone a pu éteindre un feu entre temps)
+        this.update_vision();
+        //Retirer les feux déjà traiter des goals ( il le sait via sa map pour éviter conflit avec autres drones )
+        this.retirerFeuDejaTraiteDeGoal();
 
-        //Cas prioriataire : le drone est au dessus d'un feu : il l'éteind pendant le tour
+        //Cas prioritaire : le drone est au dessus d'un feu : il l'éteint pendant le tour
         if (vraie_map[this.#y][this.#x] == "feu") {
             vraie_map[this.#y][this.#x] = "cendres";
             this.#map[this.#y][this.#x] = "cendres";
+            this.retirerCaseDeGoal(this.#x, this.#y);
             let elem = document.getElementById(`${this.#x}:${this.#y}`);
             elem.classList.replace("feu", "cendres");
             this.#carburant += -1;
             return;
         }
 
-        //Mise à jour de sa vision (il n'a pas encore bougé, mais un autre drone a pu éteindre un feu entre temps)
-        this.update_vision();
+
         //Il y a un feu à côté : il va sur lui
         let fire = this.get_close_fire();
         if (fire) {
-            console.log(vraie_map[this.#y][this.#x]);
             this.update_position_with_coord(fire.x, fire.y);
             this.#carburant += -1;
             return;
 
         }
-        //Pas de feu en vue. On gère avec les objectifs
-        if (this.#goal == null || this.#goal.score < 5) {
+
+        if (this.#goal.filter(g => g.score >= 8).length == 0) {
+            //si on a pas déjà d'objectif de niveau feu on regarde sur notre map si on en connait un
+            this.ajouterFeuAGoal();
+        }
+
+        // On rentre dans le if si on a aucune case à explorer et aucun feu en vue 
+        if (this.#goal.filter(g => g.score >= 5).length == 0) {
             //pas d'objectif plus important que l'exploration, il faut donc aller dans une direction à explorer aléatoire
             let unknwown_tiles = this.get_unknwown_tiles();
             let random_index = Math.floor(Math.random() * unknwown_tiles.length);
             //Mise à jour de l'objectif
 
-            unknwown_tiles.length == 0 ? this.#goal = { x: this.#map.length - 1, y: this.#map.length-1, score: 3 } :
-                this.#goal = { x: unknwown_tiles[random_index].x, y: unknwown_tiles[random_index].y, score: 5 };
+            if (unknwown_tiles.length != 0)  //car l'objectif par défaut 39 39 déjà dans tableau goal
+                this.#goal.push({ x: unknwown_tiles[random_index].x, y: unknwown_tiles[random_index].y, score: 5 });
         }
-        this.goto_goal();
+        this.goto_goal(); //goto goal => peu être un feu ou de l'exploration
         this.#carburant += -1;
-        if (this.#x == this.#goal.x && this.#y == this.#goal.y) {
-            this.#goal = null;
-        }
-
-        //TODO : et si jamais ya que des cases déjà vue ?on remet un objectif random ?
-
-        console.log("le drone est maintenant en : " + this.#x + ":" + this.#y + " fin du tour")
+        this.retirerCaseDeGoal(this.#x, this.#y);
 
     }
 
@@ -116,12 +139,24 @@ export class Drone {
             for (let j = this.#x - this.#taille_vision; j <= this.#x + this.#taille_vision; j += 1) {
 
                 if (i >= 0 && i < this.#map.length &&
-                    j >= 0 && j < this.#map.length && this.#map[i][j] == null) {
-                    //On met tout à jour, pour pouvoir faire des feux qui grandissent s on veut plus tard
-                    this.#map[i][j] = vraie_map[i][j];
-                    //changement de css pour vraie_map
-                    let elem = document.getElementById(`${j}:${i}`);
-                    elem.classList.remove('inconnu')
+                    j >= 0 && j < this.#map.length) {
+                    if (this.#map[i][j] == null) {
+                        //On met tout à jour, pour pouvoir faire des feux qui grandissent s on veut plus tard
+                        this.#map[i][j] = vraie_map[i][j];
+                        //changement de css pour vraie_map
+                        let elem = document.getElementById(`${j}:${i}`);
+                        elem.classList.remove('inconnu');
+                        if (this.#simulation) {
+                            this.#simulation.casesConnues += 1;
+                        }
+                        else {
+                            this.#casesConnues += 1;
+                        }
+                    }
+                    else { // la case est déjà connue on la met à jour si feu devenu cendre ou propagation plus tard
+                        this.#map[i][j] = vraie_map[i][j];
+                    }
+
                 }
             }
         }
@@ -145,9 +180,14 @@ export class Drone {
     }
 
     goto_goal() {
-        // trouve la direction vers l'objectif
-        if (this.#goal.y == this.#y) { //même ligne
-            if (this.#goal.x < this.#x) {
+        let meilleurGoal = this.getMeilleurGoal();
+        if (!meilleurGoal) {            //on a plus de goal on est arrivé en 39 39 et on connait pas  de feu.
+            console.log("over");
+            return
+        }
+
+        if (meilleurGoal.y == this.#y) { //même ligne
+            if (meilleurGoal.x < this.#x) {
                 this.update_position_with_direction("GAUCHE");
                 return;
             } else {
@@ -155,8 +195,8 @@ export class Drone {
                 return;
             }
         }
-        if (this.#goal.x == this.#x) {//même colonne
-            if (this.#goal.y < this.#y) {
+        if (meilleurGoal.x == this.#x) {//même colonne
+            if (meilleurGoal.y < this.#y) {
                 this.update_position_with_direction("HAUT");
                 return;
             } else {
@@ -165,19 +205,19 @@ export class Drone {
             }
         }
         //Et là les cas relous en diagonale
-        if (this.#y > this.#goal.y && this.#x > this.#goal.x) {
+        if (this.#y > meilleurGoal.y && this.#x > meilleurGoal.x) {
             this.update_position_with_direction("HAUT-GAUCHE");
             return;
         }
-        if (this.#y > this.#goal.y && this.#x < this.#goal.x) {
+        if (this.#y > meilleurGoal.y && this.#x < meilleurGoal.x) {
             this.update_position_with_direction("HAUT-DROITE");
             return;
         }
-        if (this.#y < this.#goal.y && this.#x > this.#goal.x) {
+        if (this.#y < meilleurGoal.y && this.#x > meilleurGoal.x) {
             this.update_position_with_direction("BAS-GAUCHE");
             return;
         }
-        if (this.#y < this.#goal.y && this.#x < this.#goal.x) {
+        if (this.#y < meilleurGoal.y && this.#x < meilleurGoal.x) {
             this.update_position_with_direction("BAS-DROITE");
             return;
         }
@@ -201,7 +241,6 @@ export class Drone {
         let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
         element_remove.classList.remove("drone");
         this.#x = new_x; this.#y = new_y;
-        console.log(`drone new pos : ${new_x}:${new_y}`)
         let element_add = document.getElementById(`${this.#x}:${this.#y}`)
         element_add.classList.add("drone");
     }
@@ -216,8 +255,9 @@ export class Drone {
         let element_add = document.getElementById(`${this.#x}:${this.#y}`)
         element_add.classList.add("drone");
         //Si on est sur l'objectif alors on le reset
-        if (this.#goal && this.#x == this.#goal.x && this.#y == this.#goal.y) {
-            this.#goal == null;
+        let meilleurGoal = this.getMeilleurGoal();
+        if (this.#goal && this.#x == meilleurGoal.x && this.#y == meilleurGoal.y) {
+            this.retirerCaseDeGoal(meilleurGoal.x, meilleurGoal.y);
         }
     }
 
@@ -228,5 +268,52 @@ export class Drone {
         }
         map[0][0] = "base"
         return map;
+    }
+
+    getMeilleurGoal() {
+        let goalSorted = this.#goal.sort((g1, g2) => g2.score - g1.score);
+        return goalSorted[0];
+    }
+
+    ajouterFeuAGoal() { //on ajoute des feux (pas forcément proche) connu à goal 
+        for (let i = 0; i < vraie_map.length; i++) {
+            for (let j = 0; j < vraie_map.length; j++) {
+                if (this.#map[i][j] == "feu") {
+                    console.log("Ben y'a un feu");
+                    this.#goal.push({ x: j, y: i, score: 8 });
+                    return;
+                }
+            }
+        }
+    }
+
+    retirerCaseDeGoal(x, y) {
+
+        this.#goal = this.#goal.filter(g => {
+            return g.x != x || g.y != y;
+        }); //on garde que les g dont g.x ou g.y est différent du x, y passé en paramètre
+
+    }
+
+    retirerFeuDejaTraiteDeGoal() { //on retire les goals dont la case correspondante est à cendre
+        this.#goal = this.#goal.filter(g => {
+            return this.#map[g.y][g.x] != "cendres";
+        });
+
+    }
+    //juste le temps qu'on fasses des simu à un drône;
+    get casesConnues() {
+        return this.#casesConnues;
+    }
+
+    copierInfosManquantesDansCarte() {
+        for (let i = 0; i < vraie_map.length; i++) {
+            for (let j = 0; j < vraie_map.length; j++) {
+                if (!this.#simulation.mapCentreControle[i][j] && this.#map[i][j]) // si cette case est undefined dans centreControle, mais defined dans drone
+                    this.#simulation.mapCentreControle[i][j] = this.#map[i][j];
+                if (this.#simulation.mapCentreControle[i][j] == "feu" && this.#map[i][j] == "cendres")//le feu a été traité
+                    this.#simulation.mapCentreControle[i][j] = "cendres";
+            }
+        }
     }
 }

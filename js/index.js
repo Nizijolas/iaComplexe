@@ -79,7 +79,8 @@ var simulation;
 const lancerSimulation = document.getElementById("lancerSimulation"); // <-- le boutton
 const stepByStep = document.getElementById("stepByStep"); // <-- boutton pour avancer étape par étape le jeu doit être en pause
 const properties = document.getElementById("properties");
-var vitesse;
+
+
 lancerSimulation.addEventListener("click", () => {
     if (isRunning) { //si la simulation était en cours
         lancerSimulation.innerText = "Relancer la simulation";
@@ -92,18 +93,19 @@ lancerSimulation.addEventListener("click", () => {
         console.log(vraie_map[0][0])
         if (!simulation) {
             // si simulation est undefined c'est que c'est le début sinon c'est qu'on avait mis sur pause;
-            // si première fois qu'on lance on doit créer la simulation et passer les properties à display none;
             simulation = new Simulation();
-        } 
-        interval = setInterval(play, 150, simulation);
+            properties.style.display = "none";
+            lancerDroneSeul.style.display = "none";
+        }
+        interval = setInterval(play, 30, simulation);
         lancerSimulation.innerText = "mettre sur pause";
         isRunning = true;
     }
 })
 
 
-stepByStep.addEventListener('click',()=>{
-    if ( !simulation ){
+stepByStep.addEventListener('click', () => {
+    if (!simulation) {
         simulation = new Simulation();
     }
     simulation.update();
@@ -111,6 +113,79 @@ stepByStep.addEventListener('click',()=>{
 
 function play(simulation) {
     simulation.update(); //fonction de l'interval
+    if (simulation.casesConnues == vraie_map.length * vraie_map.length
+    ) {
+        stopSimulation();
+    }
+}
+function stopSimulation() {
+    clearInterval(interval);
+    alert("La simulation s'est terminée");
+    fill_vraie_map();
+    setMap();
+    simulation = null;
+    isRunning = false;
+    lancerSimulation.innerText = "Lancer simulation";
+    lancerDroneSeul.style.display = "block";
+    stepByStep.style.display = "block";
+    properties.style.display = "block";
 }
 
-//il faut exporter une fonction endOfSimulation qu'on appellera depuis la simulation
+
+
+
+//pour lancer drone seul à enlever quand on aura finit -------------------------------
+const lancerDroneSeul = document.getElementById("lancerDroneSeul");
+var drone;
+lancerDroneSeul.addEventListener('click', () => {
+    if (isRunning) {
+        clearInterval(interval);
+        lancerDroneSeul.innerText = "Relancer drone seul";
+        isRunning = false;
+    }
+    else {
+        if (!drone) {
+            drone = new Drone(1, 30, 39, 39, vraie_map.length);
+            properties.style.display = "none";
+            stepByStep.style.display = "none";
+            lancerSimulation.style.display = "none";
+
+        }
+        lancerDroneSeul.innerText = "Mettre sur pause";
+        interval = setInterval(playDrone, 20, drone);
+        isRunning = true;
+    }
+
+
+});
+
+function playDrone(drone) {
+    drone.play_a_turn();
+    if (drone.casesConnues == vraie_map.length * vraie_map.length
+    ) {
+        stopDroneSeul();
+    }
+}
+
+function stopDroneSeul() {
+    clearInterval(interval);
+    alert("Le drone seul a terminé");
+    fill_vraie_map();
+    setMap();
+    stepByStep.style.display = "block";
+    lancerSimulation.style.display = "block";
+    lancerDroneSeul.innerText = "Lancer drone seul";
+    properties.style.display = "block";
+    drone = null;
+    isRunning = false;
+}
+
+
+const reinit = document.getElementById("reinit");
+
+reinit.addEventListener('click', () => {
+    if (simulation)
+        stopSimulation();
+    if (drone)
+        stopDroneSeul();
+})
