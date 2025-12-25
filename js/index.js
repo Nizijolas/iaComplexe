@@ -6,6 +6,7 @@ const tailleMap = 40;
 
 export var vraie_map;
 export var base_map;
+export var cases_en_feu = new Map();
 
 function fill_vraie_map() {
 
@@ -24,6 +25,7 @@ function fill_vraie_map() {
             //Création des feux, carré de 9 sur 9 en bas à droite
             else if (x > 30 && y > 30) {
                 vraie_map[x][y] = "feu";
+                cases_en_feu.set(`${x}:${y}`, { x: x, y: y })
             }
             //il reste que les arbres
             else {
@@ -79,6 +81,12 @@ var simulation;
 const lancerSimulation = document.getElementById("lancerSimulation"); // <-- le boutton
 const stepByStep = document.getElementById("stepByStep"); // <-- boutton pour avancer étape par étape le jeu doit être en pause
 const properties = document.getElementById("properties");
+const nb_drones = document.getElementById('nbdrones');
+const vitesse = document.getElementById("vitesse");
+const vision = document.getElementById("visionDrones");
+const detection = document.getElementById("detectionDrones");
+const carburant = document.getElementById("carburant");
+const propagation = document.getElementById("propagation");
 
 
 lancerSimulation.addEventListener("click", () => {
@@ -93,11 +101,12 @@ lancerSimulation.addEventListener("click", () => {
         console.log(vraie_map[0][0])
         if (!simulation) {
             // si simulation est undefined c'est que c'est le début sinon c'est qu'on avait mis sur pause;
-            simulation = new Simulation();
+            simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
+            console.log(propagation.value)
             properties.style.display = "none";
             lancerDroneSeul.style.display = "none";
         }
-        interval = setInterval(play, 30, simulation);
+        interval = setInterval(play, vitesse.value, simulation);
         lancerSimulation.innerText = "mettre sur pause";
         isRunning = true;
     }
@@ -106,7 +115,7 @@ lancerSimulation.addEventListener("click", () => {
 
 stepByStep.addEventListener('click', () => {
     if (!simulation) {
-        simulation = new Simulation();
+        simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
     }
     simulation.update();
 })
@@ -152,7 +161,7 @@ lancerDroneSeul.addEventListener('click', () => {
 
         }
         lancerDroneSeul.innerText = "Mettre sur pause";
-        interval = setInterval(playDrone, 20, drone);
+        interval = setInterval(playDrone, vitesse.value, drone);
         isRunning = true;
     }
 

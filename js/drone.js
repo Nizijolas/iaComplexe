@@ -1,6 +1,5 @@
 //ici faire la logique pour un drone
-import { vraie_map } from "./index.js";
-import { casesConnus, anomaliesTraitees } from "./Simulation.js";
+import { cases_en_feu, vraie_map } from "./index.js";
 export class Drone {
 
     //Position x & y d'un drône
@@ -12,20 +11,23 @@ export class Drone {
     #goal;
     #casesConnues = 1; // <----- uniquement tant qu'on lance des simulations à un drône après on pourra l'enlever de la classe drone
     #simulation;
+    #drone_detection;
+    #close_drones = [];
 
 
     //J'imagine qu'il aura sa propre carte comme attribut.
 
-    constructor(taille_vision, carburant, goalx, goaly, taille_map, x = 0, y = 0, simulation) {
+    constructor(taille_vision, taille_detection, carburant, goalx, goaly, taille_map, x = 0, y = 0, simulation) {
         this.#x = x;
         this.#y = y;
         this.#map = this.create_map(taille_map);
         this.#taille_vision = taille_vision;
         this.#simulation = simulation; // le drône doit un pointeur de la simulation dans laquelle il est
         this.update_vision(taille_vision);
-        this.#carburant = carburant;
+        this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10));
         this.#goal = []; // j'ai transformé en tableau
         this.#goal.push({ x: goalx, y: goaly, score: 2 });
+        this.#drone_detection = taille_detection;
     }
 
     get x() {
@@ -44,9 +46,12 @@ export class Drone {
         this.#y = y;
     }
 
+    set close_drones(close_drones) {
+        this.#close_drones = close_drones
+    }
+
     play_a_turn() {
         //ya que ça qui sera appelé de l'exérieur, ça fait jouer son tour au drone
-
         //TODO Cas à la con : plus de carburant à intégrer ----------------------------------------
         if (this.#carburant == 0) {
             if (this.#x != 0 || this.#y != 0) {
@@ -68,6 +73,7 @@ export class Drone {
         //----------------------------------------------------------------------------------------------
         //Mise à jour de sa vision (il n'a pas encore bougé, mais un autre drone a pu éteindre un feu entre temps)
         this.update_vision();
+        this.#close_drones = this.get_close_drones();
         //Retirer les feux déjà traiter des goals ( il le sait via sa map pour éviter conflit avec autres drones )
         this.retirerFeuDejaTraiteDeGoal();
 
@@ -78,6 +84,7 @@ export class Drone {
             this.retirerCaseDeGoal(this.#x, this.#y);
             let elem = document.getElementById(`${this.#x}:${this.#y}`);
             elem.classList.replace("feu", "cendres");
+            cases_en_feu.delete(`${this.#x}:${this.#y}`);
             this.#carburant += -1;
             return;
         }
@@ -101,11 +108,14 @@ export class Drone {
         if (this.#goal.filter(g => g.score >= 5).length == 0) {
             //pas d'objectif plus important que l'exploration, il faut donc aller dans une direction à explorer aléatoire
             let unknwown_tiles = this.get_unknwown_tiles();
-            let random_index = Math.floor(Math.random() * unknwown_tiles.length);
             //Mise à jour de l'objectif
-
-            if (unknwown_tiles.length != 0)  //car l'objectif par défaut 39 39 déjà dans tableau goal
+            if (unknwown_tiles.length != 0) {  //car l'objectif par défaut 39 39 déjà dans tableau goal
+                let random_index = Math.floor(Math.random() * unknwown_tiles.length);
                 this.#goal.push({ x: unknwown_tiles[random_index].x, y: unknwown_tiles[random_index].y, score: 5 });
+            }
+            if (this.#goal.length == 0) { //plus d'objectif, mais la map est toujours pas complètement explorée on choisi un objectif un peu au pif
+                this.add_random_goal();
+            }
         }
         this.goto_goal(); //goto goal => peu être un feu ou de l'exploration
         this.#carburant += -1;
@@ -115,7 +125,7 @@ export class Drone {
 
 
     get_unknwown_tiles() {
-        //On regarde les cases non explorées
+        //On regarde les cases non explorées autour de soi
         let unknwown_tiles = [];
 
         //parcours de bourrin, mais ça simplifie si on veut changer taille_vision
@@ -125,8 +135,6 @@ export class Drone {
                     j >= 0 && j < this.#map.length &&
                     this.#map[i][j] == undefined) {
                     unknwown_tiles.push({ x: j, y: i });
-
-
                 }
             }
         }
@@ -162,6 +170,21 @@ export class Drone {
         }
     }
 
+    get_close_drones() {
+        //Crée un tableau avec la position des drones aux alentours
+        let close_drones = [];
+        for (let i = this.#y - this.#drone_detection; i <= this.#y + this.#drone_detection; i += 1) {
+            for (let j = this.#x - this.#drone_detection; j <= this.#x + this.#drone_detection; j += 1) {
+                if (i >= 0 && i < this.#map.length &&
+                    j >= 0 && j < this.#map.length &&
+                    vraie_map[i][j] == 'drone') {
+                    close_drones.push({ x: i, y: j });
+                }
+            }
+        }
+        return close_drones;
+    }
+
 
     get_close_fire() {
         //Est-ce qu'on voit un feu ?
@@ -178,6 +201,21 @@ export class Drone {
         }
         return false
     }
+
+    add_random_goal() {
+        //on regarde sur la map si il reste des cases inexplorées
+        let random_sens = Math.round(Math.random()) % 2 == 0 ? true : false; //pour voir si on parcours ligne ou colonnes
+        for (let i = this.#map.length - 1; i >= 0 && this.#goal.length == 0; i += -1) {
+            for (let j = this.#map.length - 1; j >= 0 && this.#goal.length == 0; j += -1) {
+                if (random_sens && this.#map[i][j] == undefined) {
+                    this.#goal.push({ x: i, y: j, score: 4 })
+                } else if (!random_sens && this.#map[j][i] == undefined) {
+                    this.#goal.push({ x: j, y: i, score: 4 })
+                }
+            }
+        }
+    }
+
 
     goto_goal() {
         let meilleurGoal = this.getMeilleurGoal();
@@ -271,8 +309,29 @@ export class Drone {
     }
 
     getMeilleurGoal() {
+        if (this.#goal.length <= 1) { //un ou  zéro goal on se complique pas la tache
+            return this.#goal[0];
+        }
         let goalSorted = this.#goal.sort((g1, g2) => g2.score - g1.score);
-        return goalSorted[0];
+        let only_bests_goals = goalSorted.filter((g) => g.score == goalSorted[0].score); //array avec juste les meilleurs scores
+
+        if (only_bests_goals / length == 1) { //on seul meilleur score, on return
+            return only_bests_goals[0];
+        }
+        let max_drone_distance = 0;
+        let meilleurGoal = only_bests_goals[0];
+        //On check tous les goals par rapport aux drones connus, et on choisi celui qui est le plus éloigné d'un drone.
+        only_bests_goals.forEach(goal => {
+            this.#close_drones.forEach(drone => {
+                let distance = this.get_distance_entre(goal, drone)
+                if (max_drone_distance < distance ||
+                    (max_drone_distance == distance && Math.round(Math.random()) % 2 == 1)) {   //On rajoute un poil d'aléa en cas d'égalité pour éviter des effets de bord surtout au début
+                    max_drone_distance = distance;
+                    meilleurGoal = goal;
+                }
+            });
+        });
+        return meilleurGoal;
     }
 
     ajouterFeuAGoal() { //on ajoute des feux (pas forcément proche) connu à goal 
@@ -315,5 +374,12 @@ export class Drone {
                     this.#simulation.mapCentreControle[i][j] = "cendres";
             }
         }
+    }
+
+    get_distance_entre(obj1, obj2) {
+        //retourne la distance entre deux objets
+        let distance_x = Math.abs(obj1.x - obj2);
+        let distance_y = Math.abs(obj1.y - obj2.y);
+        return (Math.max(distance_x, distance_y));
     }
 }
