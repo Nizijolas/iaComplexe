@@ -37,7 +37,7 @@ export class Simulation {
     update() {
         this.#iterations += 1;
         console.log("iteration : " + this.#iterations)
-        if (this.#propagation != 0 && this.#iterations % (10 - this.#propagation + 1) == 0) {
+        if (this.#propagation != 0 && this.#iterations % ((10 - this.#propagation + 1) * 3) == 0) {
             console.log("BUUUURRNNNN !!!!")
             this.apply_propagation();
         }
@@ -66,7 +66,7 @@ export class Simulation {
             this.brule_les_arbres_autour(case_en_feu.x, case_en_feu.y);
         });
         this.#cases_a_ajouter_au_feu.forEach(case_a_ajouter => {
-            cases_en_feu.set(`${case_a_ajouter.x}:${case_a_ajouter}.y`, case_a_ajouter)
+            cases_en_feu.set(`${case_a_ajouter.x}:${case_a_ajouter.y}`, case_a_ajouter)
         })
     }
 

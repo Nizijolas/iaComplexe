@@ -23,7 +23,7 @@ function fill_vraie_map() {
                 vraie_map[0][0] = "base";
             }
             //Création des feux, carré de 9 sur 9 en bas à droite
-            else if (x > 30 && y > 30) {
+            else if (x > 38 && y > 38) {
                 vraie_map[x][y] = "feu";
                 cases_en_feu.set(`${x}:${y}`, { x: x, y: y })
             }
