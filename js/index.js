@@ -7,6 +7,7 @@ const tailleMap = 40;
 export var vraie_map;
 export var base_map;
 export var cases_en_feu = new Map();
+export const base = { x: Math.round(tailleMap / 2), y: Math.round(tailleMap / 2) }
 
 function fill_vraie_map() {
 
@@ -18,14 +19,14 @@ function fill_vraie_map() {
 
     for (let x = 0; x < tailleMap; x += 1) {
         for (let y = 0; y < tailleMap; y += 1) {
-            //Création de la base
-            if (x == 0 && y == 0) {
-                vraie_map[0][0] = "base";
-            }
             //Création des feux, carré de 9 sur 9 en bas à droite
-            else if (x > 38 && y > 38) {
+            if (x > 38 && y > 38) {
                 vraie_map[x][y] = "feu";
                 cases_en_feu.set(`${x}:${y}`, { x: x, y: y })
+            }
+            //Création de la base
+            else if (x == base.x && y == base.y) {
+                vraie_map[x][y] = "base";
             }
             //il reste que les arbres
             else {
@@ -40,7 +41,7 @@ function create_base_map() {
     for (let i = 0; i < tailleMap; i += 1) {
         base_map[i] = new Array(tailleMap);
     }
-    base_map[0][0] = "base";
+    base_map[base.x][base.y] = "base";
 }
 
 function setMap() {
@@ -56,7 +57,8 @@ function setMap() {
             rect.setAttribute("height", oneTileLength);
             rect.setAttribute("x", x * oneTileLength);
             rect.setAttribute("y", y * oneTileLength);
-            if (x == 0 && y == 0) {
+            //La base n'est pas inconnue
+            if (x == base.x && y == base.y) {
                 rect.setAttribute("class", vraie_map[x][y]);
             } else {
                 rect.setAttribute("class", "inconnu " + vraie_map[x][y]);
@@ -66,8 +68,8 @@ function setMap() {
             map.appendChild(rect);
         }
     } // Le cases sont toutes à fill black de base et au fur et à mesure de leur découverte il faudra les passer à vert en leur passant la classe arbre
-    const base = document.getElementById("0:0") //on met la base à 0, 0;
-    base.classList.add("base");
+    const case_base = document.getElementById(`${base.x}:${base.y}`) //on met la base à 0, 0;
+    case_base.classList.add("base");
 }
 
 
@@ -98,11 +100,10 @@ lancerSimulation.addEventListener("click", () => {
     }
     else { //On lance ( ou relance ) la simulation 
         stepByStep.style.display = "none";
-        console.log(vraie_map[0][0])
+        console.log(vraie_map[base.x][base.y])
         if (!simulation) {
             // si simulation est undefined c'est que c'est le début sinon c'est qu'on avait mis sur pause;
             simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
-            console.log(propagation.value)
             properties.style.display = "none";
             lancerDroneSeul.style.display = "none";
         }
@@ -133,6 +134,7 @@ function stopSimulation() {
     cases_en_feu = new Map();
     fill_vraie_map();
     setMap();
+    create_base_map();
     simulation = null;
     isRunning = false;
     lancerSimulation.innerText = "Lancer simulation";
