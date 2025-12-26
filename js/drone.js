@@ -1,5 +1,5 @@
 //ici faire la logique pour un drone
-import { cases_en_feu, vraie_map } from "./index.js";
+import { base, cases_en_feu, vraie_map } from "./index.js";
 export class Drone {
 
     //Position x & y d'un drône
@@ -17,7 +17,7 @@ export class Drone {
 
     //J'imagine qu'il aura sa propre carte comme attribut.
 
-    constructor(taille_vision, taille_detection, carburant, goalx, goaly, taille_map, x = 0, y = 0, simulation) {
+    constructor(taille_vision, taille_detection, carburant, goalx, goaly, taille_map, x = base.x, y = base.y, simulation) {
         this.#x = x;
         this.#y = y;
         this.#map = this.create_map(taille_map);
@@ -51,18 +51,19 @@ export class Drone {
     }
 
     play_a_turn() {
+        console.log(`Drone : my coords are : ${this.#x}:${this.#y}`)
         //ya que ça qui sera appelé de l'exérieur, ça fait jouer son tour au drone
         //TODO Cas à la con : plus de carburant à intégrer ----------------------------------------
         if (this.#carburant == 0) {
-            if (this.#x != 0 || this.#y != 0) {
-                this.#goal.push({ x: 0, y: 0, score: 10 });
+            if (this.#x != base.x || this.#y != base.y) {
+                this.#goal.push({ x: base.x, y: base.y, score: 10 });
                 this.update_vision();// -> il faut quand même update la vision en rentrant
                 this.goto_goal();
                 return;
             }
             else { //on refill le carburant + on gère l'histoire des maps;
                 this.#carburant = 40;
-                this.retirerCaseDeGoal(0, 0);
+                this.retirerCaseDeGoal(base.x, base.y);
                 if (this.#simulation) { // si on fait test avec drone seul il n'y a pas d'instance de simulation
                     this.copierInfosManquantesDansCarte();
                     this.#map = JSON.parse(JSON.stringify(this.#simulation.mapCentreControle));//clone du tableau ( le clonage classique fonctionne pas pour les tableaux imbriqués..)
