@@ -3,11 +3,11 @@ import { Simulation } from "./Simulation.js ";
 
 const map = document.getElementById("map"); //map dans le sens carte et pas structure de données petit malin ;)
 const tailleMap = 40;
+export const base = { x: Math.round(tailleMap / 2), y: Math.round(tailleMap / 2) }
 
 export var vraie_map;
 export var base_map;
 export var cases_en_feu = new Map();
-export const base = { x: Math.round(tailleMap / 2), y: Math.round(tailleMap / 2) }
 
 function fill_vraie_map() {
 
@@ -21,16 +21,16 @@ function fill_vraie_map() {
         for (let y = 0; y < tailleMap; y += 1) {
             //Création des feux, carré de 9 sur 9 en bas à droite
             if (x > 38 && y > 38) {
-                vraie_map[x][y] = "feu";
+                vraie_map[y][x] = "feu";
                 cases_en_feu.set(`${x}:${y}`, { x: x, y: y })
             }
             //Création de la base
             else if (x == base.x && y == base.y) {
-                vraie_map[x][y] = "base";
+                vraie_map[y][x] = "base";
             }
             //il reste que les arbres
             else {
-                vraie_map[x][y] = "arbre";
+                vraie_map[y][x] = "arbre";
             }
         }
     }
@@ -41,7 +41,7 @@ function create_base_map() {
     for (let i = 0; i < tailleMap; i += 1) {
         base_map[i] = new Array(tailleMap);
     }
-    base_map[base.x][base.y] = "base";
+    base_map[base.y][base.x] = "base";
 }
 
 function setMap() {
@@ -59,16 +59,16 @@ function setMap() {
             rect.setAttribute("y", y * oneTileLength);
             //La base n'est pas inconnue
             if (x == base.x && y == base.y) {
-                rect.setAttribute("class", vraie_map[x][y]);
+                rect.setAttribute("class", vraie_map[y][x]);
             } else {
-                rect.setAttribute("class", "inconnu " + vraie_map[x][y]);
+                rect.setAttribute("class", "inconnu " + vraie_map[y][x]);
             }
             //on set les id de chaque case sur ce canvas "x:y" pour gérér les changements de classe via l'id de la case après.
             rect.setAttribute("id", `${x}:${y}`)
             map.appendChild(rect);
         }
     } // Le cases sont toutes à fill black de base et au fur et à mesure de leur découverte il faudra les passer à vert en leur passant la classe arbre
-    const case_base = document.getElementById(`${base.x}:${base.y}`) //on met la base à 0, 0;
+    const case_base = document.getElementById(`${base.x}:${base.y}`);
     case_base.classList.add("base");
 }
 
@@ -100,7 +100,7 @@ lancerSimulation.addEventListener("click", () => {
     }
     else { //On lance ( ou relance ) la simulation 
         stepByStep.style.display = "none";
-        console.log(vraie_map[base.x][base.y])
+        console.log(vraie_map[base.y][base.x])
         if (!simulation) {
             // si simulation est undefined c'est que c'est le début sinon c'est qu'on avait mis sur pause;
             simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
@@ -122,6 +122,7 @@ stepByStep.addEventListener('click', () => {
 
 function play(simulation) {
     simulation.update(); //fonction de l'interval
+    console.log(simulation.casesConnues);
     if (simulation.casesConnues == vraie_map.length * vraie_map.length
     ) {
         stopSimulation();

@@ -1,11 +1,7 @@
 import { Drone } from "./drone.js";
 import { base, cases_en_feu, vraie_map } from "./index.js";
 
-//pas dans une instance pour pouvoir l'appeller depuis drône qui ne connait pas l'instance de la Simulation hôte (ou alors faudrait lui passer dans le constructeur)
-export let casesConnus = 1; //1 la base
-export let anomaliesTraitees = 0;
 
-var drone;
 export class Simulation {
 
     #drones = []; // tableau de drones
@@ -16,7 +12,8 @@ export class Simulation {
     #cases_a_ajouter_au_feu = [];
 
     constructor(propagation, nb_drones, taille_vision, taille_detection, carburant) {
-
+        
+        let drone;
         for (let i = 0; i < nb_drones; i++) { //création des drônes
             let random_coord = Math.floor(Math.random() * vraie_map.length);
             console.log(base);
@@ -50,7 +47,7 @@ export class Simulation {
         for (let i = 0; i < taille_map; i += 1) {
             map[i] = new Array(taille_map);
         }
-        map[base.x][base.y] = "base"
+        map[base.y][base.x] = "base";
         return map;
     }
 
@@ -67,7 +64,7 @@ export class Simulation {
         this.#casesConnues = x;
     }
 
-    get casesConnuesConnues() {
+    get casesConnues() {
         return this.#casesConnues;
     }
 
@@ -90,15 +87,15 @@ export class Simulation {
     }
 
     brule_les_arbres_autour(x, y) {
-        for (let i = x - 1; i <= x + 1; i += 1) {
-            for (let j = y - 1; j <= y + 1; j += 1) {
+        for (let i = y - 1; i <= y + 1; i += 1) {
+            for (let j = x - 1; j <= x + 1; x += 1) {
                 if (i < vraie_map.length && i >= 0 &&
                     j < vraie_map.length && j >= 0 &&
                     vraie_map[i][j] == "arbre" &&
                     Math.floor(Math.random() * 3) % 3 == 0) {
                     vraie_map[i][j] = "feu";
-                    this.#cases_a_ajouter_au_feu.push({ x: i, y: j });
-                    let elem = document.getElementById(`${i}:${j}`);
+                    this.#cases_a_ajouter_au_feu.push({ x: y, y: i });
+                    let elem = document.getElementById(`${j}:${i}`);
                     elem.classList.replace("arbre", "feu");
                 }
             }

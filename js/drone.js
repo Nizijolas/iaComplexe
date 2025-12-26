@@ -12,6 +12,7 @@ export class Drone {
     #simulation;
     #drone_detection;
     #close_drones = [];
+    #retourneBase = false; //booléen
 
 
 
@@ -21,10 +22,10 @@ export class Drone {
         this.#map = this.create_map(taille_map);
         this.#taille_vision = taille_vision;
         this.#simulation = simulation; // le drône doit avoir un pointeur de la simulation dans laquelle il est
-        this.update_vision(taille_vision);
-        this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10));
         this.#goal = []; // j'ai transformé en tableau
         this.#goal.push({ x: goalx, y: goaly, score: 2 });
+        this.update_vision(taille_vision);
+        this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10));
         this.#drone_detection = taille_detection;
     }
 
@@ -50,28 +51,31 @@ export class Drone {
 
     play_a_turn() {
         console.log(`Drone : my coords are : ${this.#x}:${this.#y}`)
-        //ya que ça qui sera appelé de l'exérieur, ça fait jouer son tour au drone
+
+        this.update_vision(); //première chose à faire update la vision
+        this.retirerCaseDeGoal(this.#x, this.#y); //deuxième chose à faire retirer le goal si on est dessus normalement on doit le faire que ici et dans updateVision
+
         //TODO Cas à la con : plus de carburant à intégrer ----------------------------------------
         if (this.#carburant == 0) {
             if (this.#x != base.x || this.#y != base.y) {
-                this.#goal.push({ x: base.x, y: base.y, score: 10 });
-                this.update_vision();// -> il faut quand même update la vision en rentrant
+                if (!this.#retourneBase) {
+                    this.#goal.push({ x: base.x, y: base.y, score: 10 });
+                    this.#retourneBase = true;
+                }
                 this.goto_goal();
                 return;
             }
             else { //on refill le carburant + on gère l'histoire des maps;
                 this.#carburant = 40;
-                this.retirerCaseDeGoal(base.x, base.y);
-                if (this.#simulation) { // si on fait test avec drone seul il n'y a pas d'instance de simulation
-                    this.copierInfosManquantesDansCarte();
-                    this.#map = JSON.parse(JSON.stringify(this.#simulation.mapCentreControle));//clone du tableau ( le clonage classique fonctionne pas pour les tableaux imbriqués..)
-                }
+                this.#retourneBase = false;
+                this.copierInfosManquantesDansCarte();
+                this.#map = JSON.parse(JSON.stringify(this.#simulation.mapCentreControle));//clone du tableau ( le clonage classique fonctionne pas pour les tableaux imbriqués..)
+                this.#goal = []; // on reset les goals ça sert à rien de garder les mêmes une fois repasser à la base je pense
                 return;
             }
         }
         //----------------------------------------------------------------------------------------------
         //Mise à jour de sa vision (il n'a pas encore bougé, mais un autre drone a pu éteindre un feu entre temps)
-        this.update_vision();
         this.#close_drones = this.get_close_drones();
         //Retirer les feux déjà traiter des goals ( il le sait via sa map pour éviter conflit avec autres drones )
         this.retirerFeuDejaTraiteDeGoal();
@@ -80,7 +84,6 @@ export class Drone {
         if (vraie_map[this.#y][this.#x] == "feu") {
             vraie_map[this.#y][this.#x] = "cendres";
             this.#map[this.#y][this.#x] = "cendres";
-            this.retirerCaseDeGoal(this.#x, this.#y);
             let elem = document.getElementById(`${this.#x}:${this.#y}`);
             elem.classList.replace("feu", "cendres");
             cases_en_feu.delete(`${this.#x}:${this.#y}`);
@@ -118,7 +121,6 @@ export class Drone {
         }
         this.goto_goal(); //goto goal => peu être un feu ou de l'exploration
         this.#carburant += -1;
-        this.retirerCaseDeGoal(this.#x, this.#y);
 
     }
 
@@ -153,9 +155,8 @@ export class Drone {
                         //changement de css pour vraie_map
                         let elem = document.getElementById(`${j}:${i}`);
                         elem.classList.remove('inconnu');
-                                                            // HALTE LA
                         this.#simulation.casesConnues += 1; //<----Est ce que ça va pas créer des problèmes parce que chaque drône peut découvrir la même case et donc on atteint plus rapidemment que prévu caseConnues ? 
-                      
+                        this.retirerCaseDeGoal(j, i); // on retire on l'a découverte si c'était un feu elle sera ajouté plus tard;
                     }
                     else { // la case est déjà connue on la met à jour si feu devenu cendre ou propagation plus tard
                         this.#map[i][j] = vraie_map[i][j];
@@ -204,9 +205,9 @@ export class Drone {
         for (let i = this.#map.length - 1; i >= 0 && this.#goal.length == 0; i += -1) {
             for (let j = this.#map.length - 1; j >= 0 && this.#goal.length == 0; j += -1) {
                 if (random_sens && this.#map[i][j] == undefined) {
-                    this.#goal.push({ x: i, y: j, score: 4 })
+                    this.#goal.push({ x: j, y: i, score: 4 });
                 } else if (!random_sens && this.#map[j][i] == undefined) {
-                    this.#goal.push({ x: j, y: i, score: 4 })
+                    this.#goal.push({ x: i, y: j, score: 4 });
                 }
             }
         }
@@ -215,9 +216,7 @@ export class Drone {
 
     goto_goal() {
         let meilleurGoal = this.getMeilleurGoal();
-        console.log(meilleurGoal);
-        if (!meilleurGoal) {       
-            console.log("over");
+        if (!meilleurGoal) {
             return
         }
 
@@ -289,11 +288,7 @@ export class Drone {
         this.#x = x; this.#y = y;
         let element_add = document.getElementById(`${this.#x}:${this.#y}`)
         element_add.classList.add("drone");
-        //Si on est sur l'objectif alors on le reset
-        let meilleurGoal = this.getMeilleurGoal();
-        if (meilleurGoal && this.#x == meilleurGoal.x && this.#y == meilleurGoal.y) {
-            this.retirerCaseDeGoal(meilleurGoal.x, meilleurGoal.y);
-        }
+       
     }
 
     create_map(taille_map) {
@@ -301,7 +296,6 @@ export class Drone {
         for (let i = 0; i < taille_map; i += 1) {
             map[i] = new Array(taille_map);
         }
-        map[0][0] = "base"
         return map;
     }
 
@@ -361,10 +355,8 @@ export class Drone {
     copierInfosManquantesDansCarte() {
         for (let i = 0; i < vraie_map.length; i++) {
             for (let j = 0; j < vraie_map.length; j++) {
-                if (!this.#simulation.mapCentreControle[i][j] && this.#map[i][j]) // si cette case est undefined dans centreControle, mais defined dans drone
+                if (this.#map[i][j])
                     this.#simulation.mapCentreControle[i][j] = this.#map[i][j];
-                if (this.#simulation.mapCentreControle[i][j] == "feu" && this.#map[i][j] == "cendres")//le feu a été traité
-                    this.#simulation.mapCentreControle[i][j] = "cendres";
             }
         }
     }
