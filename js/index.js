@@ -130,6 +130,7 @@ function play(simulation) {
 function stopSimulation() {
     clearInterval(interval);
     alert("La simulation s'est terminée");
+    cases_en_feu = new Map();
     fill_vraie_map();
     setMap();
     simulation = null;
@@ -179,6 +180,7 @@ function playDrone(drone) {
 function stopDroneSeul() {
     clearInterval(interval);
     alert("Le drone seul a terminé");
+    cases_en_feu = new Map();
     fill_vraie_map();
     setMap();
     stepByStep.style.display = "block";

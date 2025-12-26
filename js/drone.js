@@ -15,14 +15,13 @@ export class Drone {
     #close_drones = [];
 
 
-    //J'imagine qu'il aura sa propre carte comme attribut.
 
     constructor(taille_vision, taille_detection, carburant, goalx, goaly, taille_map, x = 0, y = 0, simulation) {
         this.#x = x;
         this.#y = y;
         this.#map = this.create_map(taille_map);
         this.#taille_vision = taille_vision;
-        this.#simulation = simulation; // le drône doit un pointeur de la simulation dans laquelle il est
+        this.#simulation = simulation; // le drône doit avoir un pointeur de la simulation dans laquelle il est
         this.update_vision(taille_vision);
         this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10));
         this.#goal = []; // j'ai transformé en tableau
