@@ -19,21 +19,22 @@ export class Simulation {
 
         for (let i = 0; i < nb_drones; i++) { //création des drônes
             let random_coord = Math.floor(Math.random() * vraie_map.length);
-            switch (i) {
-                case i % 4 == 0:
-                    drone = new Drone(taille_vision, taille_detection, carburant, 0, random_coord, vraie_map.length, base.x, base.y, this)
+            console.log(base);
+            switch (i%4) {
+                case 0:
+                    drone = new Drone(taille_vision, taille_detection, carburant, 0, random_coord, vraie_map.length, base.x, base.y, this);
                     this.#drones.push(drone);
                     break;
-                case i % 4 == 1:
-                    drone = new Drone(taille_vision, taille_detection, carburant, vraie_map.length - 1, random_coord, vraie_map.length, base.x, base.y, this)
+                case 1:
+                    drone = new Drone(taille_vision, taille_detection, carburant, vraie_map.length - 1, random_coord, vraie_map.length, base.x, base.y, this);
                     this.#drones.push(drone);
                     break;
-                case i % 4 == 2:
-                    drone = new Drone(taille_vision, taille_detection, carburant, random_coord, 0, vraie_map.length, base.x, base.y, this)
+                case 2:
+                    drone = new Drone(taille_vision, taille_detection, carburant, random_coord, 0, vraie_map.length, base.x, base.y, this);
                     this.#drones.push(drone);
                     break;
-                case i % 4 == 3:
-                    drone = new Drone(taille_vision, taille_detection, carburant, random_coord, vraie_map.length - 1, vraie_map.length, base.x, base.y, this)
+                case 3:
+                    drone = new Drone(taille_vision, taille_detection, carburant, random_coord, vraie_map.length - 1, vraie_map.length, base.x, base.y, this);
                     this.#drones.push(drone);
                     break;
             }
