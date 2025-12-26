@@ -1,4 +1,3 @@
-import { Drone } from "./drone.js";
 import { Simulation } from "./Simulation.js ";
 
 const map = document.getElementById("map"); //map dans le sens carte et pas structure de données petit malin ;)
@@ -34,6 +33,7 @@ function fill_vraie_map() {
             }
         }
     }
+
 }
 
 function create_base_map() {
@@ -118,12 +118,12 @@ stepByStep.addEventListener('click', () => {
         simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
     }
     simulation.update();
-    console.log(simulation.casesConnues);
+    console.log(`Nombre de cases connues : ${simulation.casesConnues} / ${vraie_map.length * vraie_map.length}`);
 })
 
 function play(simulation) {
     simulation.update(); //fonction de l'interval
-    console.log(simulation.casesConnues);
+    console.log(`Nombre de cases connues : ${simulation.casesConnues} / ${vraie_map.length * vraie_map.length}`);
     if (simulation.casesConnues == vraie_map.length * vraie_map.length
     ) {
         stopSimulation();

@@ -12,7 +12,7 @@ export class Simulation {
     #cases_a_ajouter_au_feu = [];
 
     constructor(propagation, nb_drones, taille_vision, taille_detection, carburant) {
-        
+
         this.#casesConnues = 1; //la base est connue
         this.#carteCentreControle = this.create_map(vraie_map.length);
         this.#propagation = propagation;
@@ -20,7 +20,6 @@ export class Simulation {
         let drone;
         for (let i = 0; i < nb_drones; i++) { //création des drônes
             let random_coord = Math.floor(Math.random() * vraie_map.length);
-            console.log(base);
             switch (i % 4) {
                 case 0:
                     drone = new Drone(taille_vision, taille_detection, carburant, 0, random_coord, vraie_map.length, base.x, base.y, this);
@@ -40,8 +39,6 @@ export class Simulation {
                     break;
             }
         }
-        console.log(this.#drones)
-
     }
 
     create_map(taille_map) {
@@ -90,13 +87,13 @@ export class Simulation {
 
     brule_les_arbres_autour(x, y) {
         for (let i = y - 1; i <= y + 1; i += 1) {
-            for (let j = x - 1; j <= x + 1; x += 1) {
+            for (let j = x - 1; j <= x + 1; j += 1) {
                 if (i < vraie_map.length && i >= 0 &&
                     j < vraie_map.length && j >= 0 &&
                     vraie_map[i][j] == "arbre" &&
                     Math.floor(Math.random() * 3) % 3 == 0) {
                     vraie_map[i][j] = "feu";
-                    this.#cases_a_ajouter_au_feu.push({ x: y, y: i });
+                    this.#cases_a_ajouter_au_feu.push({ x: j, y: i });
                     let elem = document.getElementById(`${j}:${i}`);
                     elem.classList.replace("arbre", "feu");
                 }

@@ -51,12 +51,9 @@ export class Drone {
     }
 
     play_a_turn() {
-        console.log(`Drone : my coords are : ${this.#x}:${this.#y}`)
-
         this.update_vision(); //première chose à faire update la vision
         this.retirerCaseDeGoal(this.#x, this.#y); //deuxième chose à faire retirer le goal si on est dessus normalement on doit le faire que ici et dans updateVision
 
-        //TODO Cas à la con : plus de carburant à intégrer ----------------------------------------
         if (this.#carburant == 0) {
             if (this.#x != base.x || this.#y != base.y) {
                 if (!this.#retourneBase) {
@@ -76,9 +73,9 @@ export class Drone {
             }
         }
         //----------------------------------------------------------------------------------------------
-        //Mise à jour de sa vision (il n'a pas encore bougé, mais un autre drone a pu éteindre un feu entre temps)
+        //Est-ce qu'il y a des drones proches
         this.#close_drones = this.get_close_drones();
-        //Retirer les feux déjà traiter des goals ( il le sait via sa map pour éviter conflit avec autres drones )
+        //Retirer les feux déjà traités des goals ( il le sait via sa map pour éviter conflit avec autres drones )
         this.retirerFeuDejaTraiteDeGoal();
 
         //Cas prioritaire : le drone est au dessus d'un feu : il l'éteint pendant le tour
@@ -93,7 +90,7 @@ export class Drone {
         }
 
 
-        //Il y a un feu à côté : il va sur lui
+        //Il y a un feu à côté : il va sur lui uniquement si il n'y a pas déjà un autre drone dessus
         let fire = this.get_close_fire();
         if (fire) {
             this.update_position_with_coord(fire.x, fire.y);
@@ -156,8 +153,6 @@ export class Drone {
                         //changement de css pour vraie_map
                         let elem = document.getElementById(`${j}:${i}`);
                         elem.classList.remove('inconnu');
-                        this.#simulation.casesConnues += 1; 
-                        console.log(this.#simulation.casesConnues);
                         this.retirerCaseDeGoal(j, i); // on retire on l'a découverte si c'était un feu elle sera ajouté plus tard;
                     }
                     else { // la case est déjà connue on la met à jour si feu devenu cendre ou propagation plus tard
@@ -188,8 +183,8 @@ export class Drone {
     get_close_fire() {
         //Est-ce qu'on voit un feu ?
         let fire_tile;
-        for (let i = -1; i <= 1; i += 1) {
-            for (let j = -1; j <= 1; j += 1) {
+        for (let i = -this.#taille_vision; i <= this.#taille_vision; i += 1) {
+            for (let j = -this.#taille_vision; j <= this.#taille_vision; j += 1) {
                 if (this.#y + i >= 0 && this.#y + i < this.#map.length &&
                     this.#x + j >= 0 && this.#x + j < this.#map.length &&
                     this.#map[this.#y + i][this.#x + j] == "feu") {
@@ -202,16 +197,41 @@ export class Drone {
     }
 
     add_random_goal() {
+
         //on regarde sur la map si il reste des cases inexplorées
-        let random_sens = Math.round(Math.random()) % 2 == 0 ? true : false; //pour voir si on parcours ligne ou colonnes
-        for (let i = this.#map.length - 1; i >= 0 && this.#goal.length == 0; i += -1) {
-            for (let j = this.#map.length - 1; j >= 0 && this.#goal.length == 0; j += -1) {
-                if (random_sens && this.#map[i][j] == undefined) {
-                    this.#goal.push({ x: j, y: i, score: 4 });
-                } else if (!random_sens && this.#map[j][i] == undefined) {
-                    this.#goal.push({ x: i, y: j, score: 4 });
+        let random_sens = Math.round(Math.random() * 10) % 4; //pour voir dans quel sens on va aller
+        console.log(`random sens = ${random_sens}`)
+
+        for (let i = 0; i < this.#map.length && this.#goal.length == 0; i += 1) {
+            for (let j = 0; j < this.#map.length && this.#goal.length == 0; j += 1) {
+                switch (random_sens) {
+                    case 0:
+                        if (this.#map[i][j] == undefined) {
+                            this.#goal.push({ x: j, y: i, score: 4 });
+                        }
+                        break;
+                    case 1:
+                        if (this.#map[i][this.#map.length - j - 1] == undefined) {
+                            this.#goal.push({ x: j, y: i, score: 4 });
+                        }
+                        break;
+                    case 2:
+                        if (this.#map[this.#map.length - i - 1][j] == undefined) {
+                            this.#goal.push({ x: j, y: i, score: 4 });
+                        }
+                        break;
+                    case 3:
+                        if (this.#map[this.#map.length - i - 1][this.#map.length - j - 1] == undefined) {
+                            this.#goal.push({ x: j, y: i, score: 4 });
+                        }
+                        break;
                 }
             }
+        }
+        if (this.#goal.length == 0) {
+            let goal_x = Math.floor(Math.random() * this.#map.length);
+            let goal_y = Math.floor(Math.random() * this.#map.length);
+            this.#goal.push({ x: goal_x, y: goal_y })
         }
     }
 
@@ -290,7 +310,7 @@ export class Drone {
         this.#x = x; this.#y = y;
         let element_add = document.getElementById(`${this.#x}:${this.#y}`)
         element_add.classList.add("drone");
-       
+
     }
 
     create_map(taille_map) {
@@ -357,8 +377,13 @@ export class Drone {
     copierInfosManquantesDansCarte() {
         for (let i = 0; i < vraie_map.length; i++) {
             for (let j = 0; j < vraie_map.length; j++) {
-                if (this.#map[i][j])
+                if (this.#map[i][j]) { //infos nouvelles dans la map du drone
+                    if (this.#simulation.mapCentreControle[i][j] == undefined) { //La case n'avais pas encore été découverte
+                        this.#simulation.casesConnues += 1;
+                    }
+                    //dans tous les cas on met à jour
                     this.#simulation.mapCentreControle[i][j] = this.#map[i][j];
+                }
             }
         }
     }
