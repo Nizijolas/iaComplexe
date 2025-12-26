@@ -14,32 +14,33 @@
     </svg>
     <div id="properties">
         <p> Paramètres de la simulation : </p>
-        <form oninput="x.value=parseInt(propagation.value)">
-            Vitesse de propagation : <output name="x" for="propagation"></output> <br />
-            <input id="propagation" type="range" name="propagation" min="0" max="10" value="0"></input>
-        </form>
-        <form oninput="x.value=parseInt(vitesse.value)">
-            Vitesse : <output name="x" for="vitesse"></output> <br />
-            <input id="vitesse" type="range" name="Vitesse" min="30" max="1000" value="30"></input>
-        </form>
-        <form oninput="x.value=parseInt(nbdrones.value)">
-            Nombre de drones : <output name="x" for="nbdrones"></output> <br />
-            <input id="nbdrones" type="range" name="nbdrones" min="1" max="20" value="7"></input>
-        </form>
-        <form oninput="x.value=parseInt(carburant.value)">
-            Carburant : <output name="x" for="carburant"></output><br />
-            <input id="carburant" type="range" name="carburant" min="30" max="200" value="50"></input>
-        </form>
-        <form oninput="x.value=parseInt(visionDrones.value)">
-            Distance de vision : <output name="x" for="visionDrones"></output><br />
-            <input id="visionDrones" type="range" name="visionDrones" min="1" max="50" value="1"></input>
-        </form>
+        <div id="forms">
+            <form oninput="x.value=parseInt(propagation.value)">
+                Vitesse de propagation : <output name="x" for="propagation"></output> <br />
+                <input id="propagation" type="range" name="propagation" min="0" max="10" value="0"></input>
+            </form>
+            <form oninput="x.value=parseInt(vitesse.value)">
+                Vitesse : <output name="x" for="vitesse"></output> <br />
+                <input id="vitesse" type="range" name="Vitesse" min="30" max="1000" value="30"></input>
+            </form>
+            <form oninput="x.value=parseInt(nbdrones.value)">
+                Nombre de drones : <output name="x" for="nbdrones"></output> <br />
+                <input id="nbdrones" type="range" name="nbdrones" min="1" max="20" value="7"></input>
+            </form>
+            <form oninput="x.value=parseInt(carburant.value)">
+                Carburant : <output name="x" for="carburant"></output><br />
+                <input id="carburant" type="range" name="carburant" min="30" max="200" value="50"></input>
+            </form>
+            <form oninput="x.value=parseInt(visionDrones.value)">
+                Distance de vision : <output name="x" for="visionDrones"></output><br />
+                <input id="visionDrones" type="range" name="visionDrones" min="1" max="50" value="1"></input>
+            </form>
 
-        <form oninput="x.value=parseInt(detectionDrones.value)">
-            Distance de détection des autres drones : <output name="x" for="visionDrones"></output><br />
-            <input id="detectionDrones" type="range" name="detectionDrones" min="0" max="10" value="4"></input>
-        </form>
-
+            <form oninput="x.value=parseInt(detectionDrones.value)">
+                Distance de détection des autres drones : <output name="x" for="visionDrones"></output><br />
+                <input id="detectionDrones" type="range" name="detectionDrones" min="0" max="10" value="4"></input>
+            </form>
+        </div>
     </div>
     <div id="buttonsContainer">
         <button id="lancerSimulation"> Lancer simulation </button>

@@ -12,13 +12,7 @@ body{
     border: solid 2px white;
 }
 
-#properties{
-    border: solid 1px;
-    border-radius: 5px;
-    padding: 5px;
-    margin: 10px auto;
-    width: 40%;
-}
+
 
 #buttonsContainer{
     display: flex;
@@ -41,16 +35,30 @@ button:hover{
     color: white;
     cursor: pointer;
 }
+
+#properties {
+    border: solid 1px;
+    border-radius: 5px;
+    margin: 10px auto;
+    width: 60%;
+}
+
 #properties > p {
     text-decoration: underline;
     font-weight: bold;
 }
-
-
-.inputs{
-    margin: 5px auto;
+#forms{
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+form{
+    margin: 5px ;
     display: flex;
     justify-content: center;
+    width: 40%;
     gap:10px;
     align-items: center;
 }
