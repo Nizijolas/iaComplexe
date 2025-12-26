@@ -118,6 +118,7 @@ stepByStep.addEventListener('click', () => {
         simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
     }
     simulation.update();
+    console.log(simulation.casesConnues);
 })
 
 function play(simulation) {

@@ -13,11 +13,15 @@ export class Simulation {
 
     constructor(propagation, nb_drones, taille_vision, taille_detection, carburant) {
         
+        this.#casesConnues = 1; //la base est connue
+        this.#carteCentreControle = this.create_map(vraie_map.length);
+        this.#propagation = propagation;
+
         let drone;
         for (let i = 0; i < nb_drones; i++) { //création des drônes
             let random_coord = Math.floor(Math.random() * vraie_map.length);
             console.log(base);
-            switch (i%4) {
+            switch (i % 4) {
                 case 0:
                     drone = new Drone(taille_vision, taille_detection, carburant, 0, random_coord, vraie_map.length, base.x, base.y, this);
                     this.#drones.push(drone);
@@ -37,9 +41,7 @@ export class Simulation {
             }
         }
         console.log(this.#drones)
-        this.#casesConnues = 1; //la base est connue
-        this.#carteCentreControle = this.create_map(vraie_map.length);
-        this.#propagation = propagation
+
     }
 
     create_map(taille_map) {

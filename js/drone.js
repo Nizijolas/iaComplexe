@@ -20,13 +20,14 @@ export class Drone {
         this.#x = x;
         this.#y = y;
         this.#map = this.create_map(taille_map);
+        this.#map[base.y][base.x] = 'base';
         this.#taille_vision = taille_vision;
         this.#simulation = simulation; // le drône doit avoir un pointeur de la simulation dans laquelle il est
+        this.#drone_detection = taille_detection;
+        this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10));
         this.#goal = []; // j'ai transformé en tableau
         this.#goal.push({ x: goalx, y: goaly, score: 2 });
         this.update_vision(taille_vision);
-        this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10));
-        this.#drone_detection = taille_detection;
     }
 
     get x() {
@@ -155,7 +156,8 @@ export class Drone {
                         //changement de css pour vraie_map
                         let elem = document.getElementById(`${j}:${i}`);
                         elem.classList.remove('inconnu');
-                        this.#simulation.casesConnues += 1; //<----Est ce que ça va pas créer des problèmes parce que chaque drône peut découvrir la même case et donc on atteint plus rapidemment que prévu caseConnues ? 
+                        this.#simulation.casesConnues += 1; 
+                        console.log(this.#simulation.casesConnues);
                         this.retirerCaseDeGoal(j, i); // on retire on l'a découverte si c'était un feu elle sera ajouté plus tard;
                     }
                     else { // la case est déjà connue on la met à jour si feu devenu cendre ou propagation plus tard
