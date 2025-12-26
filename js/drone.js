@@ -9,7 +9,6 @@ export class Drone {
     #carburant;
     #taille_vision;
     #goal;
-    #casesConnues = 1; // <----- uniquement tant qu'on lance des simulations à un drône après on pourra l'enlever de la classe drone
     #simulation;
     #drone_detection;
     #close_drones = [];
@@ -154,12 +153,9 @@ export class Drone {
                         //changement de css pour vraie_map
                         let elem = document.getElementById(`${j}:${i}`);
                         elem.classList.remove('inconnu');
-                        if (this.#simulation) {
-                            this.#simulation.casesConnues += 1;
-                        }
-                        else {
-                            this.#casesConnues += 1;
-                        }
+                                                            // HALTE LA
+                        this.#simulation.casesConnues += 1; //<----Est ce que ça va pas créer des problèmes parce que chaque drône peut découvrir la même case et donc on atteint plus rapidemment que prévu caseConnues ? 
+                      
                     }
                     else { // la case est déjà connue on la met à jour si feu devenu cendre ou propagation plus tard
                         this.#map[i][j] = vraie_map[i][j];
@@ -219,7 +215,8 @@ export class Drone {
 
     goto_goal() {
         let meilleurGoal = this.getMeilleurGoal();
-        if (!meilleurGoal) {            //on a plus de goal on est arrivé en 39 39 et on connait pas  de feu.
+        console.log(meilleurGoal);
+        if (!meilleurGoal) {       
             console.log("over");
             return
         }
@@ -294,7 +291,7 @@ export class Drone {
         element_add.classList.add("drone");
         //Si on est sur l'objectif alors on le reset
         let meilleurGoal = this.getMeilleurGoal();
-        if (this.#goal && this.#x == meilleurGoal.x && this.#y == meilleurGoal.y) {
+        if (meilleurGoal && this.#x == meilleurGoal.x && this.#y == meilleurGoal.y) {
             this.retirerCaseDeGoal(meilleurGoal.x, meilleurGoal.y);
         }
     }
@@ -359,10 +356,6 @@ export class Drone {
             return this.#map[g.y][g.x] != "cendres";
         });
 
-    }
-    //juste le temps qu'on fasses des simu à un drône;
-    get casesConnues() {
-        return this.#casesConnues;
     }
 
     copierInfosManquantesDansCarte() {
