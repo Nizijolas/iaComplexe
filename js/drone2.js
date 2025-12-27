@@ -270,10 +270,7 @@ export class Drone {
 
 
     goto_goal() {
-        let meilleurGoal = this.getMeilleurGoal();
-        if (!meilleurGoal) {
-            return
-        }
+
 
         if (meilleurGoal.y == this.#y) { //même ligne
             if (meilleurGoal.x < this.#x) {
