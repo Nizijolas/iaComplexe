@@ -376,7 +376,7 @@ export class Drone {
 
     get_distance_entre(obj1, obj2) {
         //retourne la distance entre deux objets
-        let distance_x = Math.abs(obj1.x - obj2);
+        let distance_x = Math.abs(obj1.x - obj2.x);
         let distance_y = Math.abs(obj1.y - obj2.y);
         return (Math.max(distance_x, distance_y));
     }
