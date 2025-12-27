@@ -97,7 +97,7 @@ export class Drone {
         this.#map[this.#y][this.#x] = "cendres";
         let elem = document.getElementById(`${this.#x}:${this.#y}`);
         elem.classList.replace("feu", "cendres");
-        cases_en_feu.delete(`${this.#x}:${this.#y}`);
+        cases_en_feu.delete({});
         this.#carburant += -1;
     }
 
