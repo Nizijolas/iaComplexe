@@ -118,12 +118,10 @@ stepByStep.addEventListener('click', () => {
         simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
     }
     simulation.update();
-    console.log(`Nombre de cases connues : ${simulation.casesConnues} / ${vraie_map.length * vraie_map.length}`);
 })
 
 function play(simulation) {
     simulation.update(); //fonction de l'interval
-    console.log(`Nombre de cases connues : ${simulation.casesConnues} / ${vraie_map.length * vraie_map.length}`);
     if (simulation.casesConnues == vraie_map.length * vraie_map.length
     ) {
         stopSimulation();

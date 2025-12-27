@@ -101,6 +101,15 @@ export class Simulation {
         }
     }
 
+    drone_at(x, y) {
+        this.#drones.forEach(drone => {
+            if (drone.x == x && drone.y == y) {
+                return true;
+            }
+        });
+        return false;
+    }
+
 
 
 
