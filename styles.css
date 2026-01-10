@@ -72,6 +72,10 @@ form{
     fill:green;
 }
 
+.humain{
+    fill: rgba(255, 252, 100, 0.926);
+}
+
 .feu{
     fill:red;
 }
