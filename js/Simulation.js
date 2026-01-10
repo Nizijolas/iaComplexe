@@ -107,12 +107,13 @@ export class Simulation {
     }
 
     drone_at(x, y) {
+        let result = false;
         this.#drones.forEach(drone => {
             if (drone.x == x && drone.y == y) {
-                return true;
+                result = true;
             }
         });
-        return false;
+        return result;
     }
 
     drone_closed_to(x, y, distance) {
