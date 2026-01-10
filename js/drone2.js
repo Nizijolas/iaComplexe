@@ -97,8 +97,8 @@ export class Drone {
     }
 
     eteindre_feu() {
-        vraie_map[this.#y][this.#x] = "cendres";
-        this.#map[this.#y][this.#x] = "cendres";
+        vraie_map[this.#x][this.#y] = "cendres";
+        this.#map[this.#x][this.#y] = "cendres";
         let elem = document.getElementById(`${this.#x}:${this.#y}`);
         elem.classList.replace("feu", "cendres");
         cases_en_feu.delete(`${x}:${y}`);
