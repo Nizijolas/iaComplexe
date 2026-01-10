@@ -56,7 +56,7 @@ export class Drone {
         let close_fires = this.update_vision();
 
         //Gérer la fin du carburant
-        if (this.#carburant == 0) {
+        if (this.#carburant <= 0) {
             this.plus_de_carburant();
             return;
         }
@@ -78,20 +78,24 @@ export class Drone {
         console.log(`je chercher à aller en : `)
         console.log(new_goal)
         this.goto_goal(new_goal);
-        carburant -= 1;
-        console.log(`Je suis maintenant en ${this.#x} : ${this.#y}`)
+        this.#carburant -= 1;
+        console.log(`Je suis en ${this.#x} : ${this.#y}`)
 
     }
 
 
     plus_de_carburant() {
         if (this.#y != base.x || this.#x != base.y) {
-            this.update_position_with_coord(base.x, base.y)
+            this.goto_goal(base);
         }
-        else { //on refill le carburant + on gère l'histoire des maps;
+        else if ( this.#carburant <= -10)
+         { //on refill le carburant + on gère l'histoire des maps;
             this.#carburant = 40;
             this.copierInfosManquantesDansCarte();
             this.#map = JSON.parse(JSON.stringify(this.#simulation.mapCentreControle));//clone du tableau ( le clonage classique fonctionne pas pour les tableaux imbriqués..)
+        }
+        else {
+            this.#carburant -= 1; //Il faut pas le faire avant sinon on arrivera à la base on aura déjà -10..
         }
     }
 

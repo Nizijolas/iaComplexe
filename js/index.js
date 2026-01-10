@@ -34,7 +34,24 @@ function fill_vraie_map() {
         }
     }
 
+    //création de 10 anomalies pour humain
+    for (let i = 0; i < 10; i++){
+        let randomX = Math.floor(Math.random()*tailleMap);
+        let randomY = Math.floor(Math.random() * tailleMap);
+        while (vraie_map[randomX][randomY] == "feu" //tant que ces randomCoo sont déjà occupé par un feu/base/humain on continue
+            || vraie_map[randomX][randomY] == "base"
+            ||  vraie_map[randomX][randomY] == "humain"
+        ){ 
+            randomX = Math.floor(Math.random() * tailleMap);
+            randomY = Math.floor(Math.random() * tailleMap);
+        }
+        console.log(randomX)
+        console.log(randomY)
+        vraie_map[randomX][randomY] = "humain";
+    }
+
 }
+
 
 function create_base_map() {
     base_map = new Array(tailleMap);
@@ -67,7 +84,7 @@ function setMap() {
             rect.setAttribute("id", `${x}:${y}`)
             map.appendChild(rect);
         }
-    } // Le cases sont toutes à fill black de base et au fur et à mesure de leur découverte il faudra les passer à vert en leur passant la classe arbre
+    }
     const case_base = document.getElementById(`${base.x}:${base.y}`);
     case_base.classList.add("base");
 }
