@@ -101,7 +101,7 @@ export class Drone {
         this.#map[this.#x][this.#y] = "cendres";
         let elem = document.getElementById(`${this.#x}:${this.#y}`);
         elem.classList.replace("feu", "cendres");
-        cases_en_feu.delete(`${x}:${y}`);
+        cases_en_feu.delete(`${this.#x}:${this.#y}`);
         this.#carburant += -1;
     }
 
@@ -110,7 +110,8 @@ export class Drone {
         //1 - on regarde dans close_fires donc les feux à une case de distance
         if (close_fires.length != 0) {
             //on choisir le premier, peu importe on pourrait randomiser si on voulait
-            console.log("feu trouvé à une case")
+            console.log("feu trouvé à une case")        //3 - on regarde si on peut explorer
+
             return close_fires[0];
         }
         //2 - on regarde si ya des feux sur la map à plus d'une case
@@ -119,10 +120,10 @@ export class Drone {
             return this.feu_le_plus_proche();
         }
 
-        if (this.get_distance_entre({ x: this.#x, y: this.#y }, { x: base.x, y: base.y }) < 2 &&
-            this.#basic_goal) {
-            return this.#basic_goal;
-        }
+        /*         if (this.get_distance_entre({ x: this.#x, y: this.#y }, { x: base.x, y: base.y }) < 2 &&
+                    this.#basic_goal) {
+                    return this.#basic_goal;
+                } */
 
         //3 - on regarde si on peut explorer
         let cases_inconnues = this.get_unknwown_tiles();
@@ -163,12 +164,13 @@ export class Drone {
             for (let j = this.#y - this.#taille_vision - 1; j <= this.#y + this.#taille_vision + 1; j += 1) {
                 if (i >= 0 && i < this.#map.length &&
                     j >= 0 && j < this.#map.length &&
-                    this.#map[i][j] == undefined) {
+                    this.#map[i][j] == undefined &&
+                    !this.#simulation.drone_closed_to(i, j, this.#taille_vision + 1)) {
                     console.log(this.#map[i][j]);
                     console.log(vraie_map[i][j]);
                     console.log(`coord : ${i}:${j}, resultat drone_closed_to : ${this.#simulation.drone_closed_to(i, j, this.#taille_vision)}`)
                     //La case n'est pas explorée, et pas à côté d'un drone par un drone, on l'ajoute
-                    unknwown_tiles.push({ x: j, y: i });
+                    unknwown_tiles.push({ x: i, y: j });
                 }
             }
         }
@@ -178,12 +180,13 @@ export class Drone {
     }
 
     get_meilleure_case_inconnue(cases_inconnues) {
+        //TODO gestion tableau randomisé
         let distance_max = 0;
         let meilleure_case = cases_inconnues[0];
         for (let i = 0; i < cases_inconnues.length; i += 1) {
             this.#close_drones.forEach(drone => {
                 let distance = this.get_distance_entre(cases_inconnues[i], drone);
-                if (distance > distance_max) {
+                if (distance >= distance_max) {
                     distance_max = distance;
                     meilleure_case = cases_inconnues[i];
                 }
@@ -386,7 +389,7 @@ export class Drone {
 
                     //Mise à jour de la map des feux
                     if (this.#simulation.mapCentreControle[i][j] == "feu") {
-                        this.#feux.set({}, true);
+                        this.#feux.set({ x: i, y: j }, true);
                     }
                 }
             }
