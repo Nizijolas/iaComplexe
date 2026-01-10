@@ -87,7 +87,7 @@ export class Drone {
 
     plus_de_carburant() {
         if (this.#y != base.x || this.#x != base.y) {
-            this.update_position_with_coord(base.x, base.y)
+            this.goto_goal(base);
         }
         else if ( this.#carburant <= -10)
          { //on refill le carburant + on gère l'histoire des maps;
