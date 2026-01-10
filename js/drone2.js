@@ -25,7 +25,7 @@ export class Drone {
         this.#taille_vision = taille_vision;
         this.#simulation = simulation; // le drône doit avoir un pointeur de la simulation dans laquelle il est
         this.#drone_detection = taille_detection;
-        this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10));
+        this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10) - (carburant / 20));
         this.#basic_goal = { x: goalx, y: goaly };
         this.#feux = new Map();
         this.update_vision(taille_vision);
