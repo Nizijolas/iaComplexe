@@ -13,6 +13,7 @@ export class Drone {
     #drone_detection;
     #close_drones = [];
     #feux;
+    #base;
 
 
 
@@ -20,7 +21,7 @@ export class Drone {
         this.#x = x;
         this.#y = y;
         this.#map = this.create_map(taille_map);
-        this.#map[base.y][base.x] = 'base';
+        this.#map[base.x][base.y] = 'base';
         this.#taille_vision = taille_vision;
         this.#simulation = simulation; // le drône doit avoir un pointeur de la simulation dans laquelle il est
         this.#drone_detection = taille_detection;
@@ -54,7 +55,7 @@ export class Drone {
     play_a_turn() {
 
         //première chose à faire update la vision, on en profite pour noter les feux à proximité
-        let close_fire = this.update_vision();
+        let close_fires = this.update_vision();
 
         //Gérer la fin du carburant
         if (this.#carburant == 0) {
@@ -73,16 +74,19 @@ export class Drone {
         }
 
         //Sinon, on trouve un bon objectif
-        let new_goal = this.find_new_goal(close_fire);
+        let new_goal = this.find_new_goal(close_fires);
         //On va vers le nouveau but
+        console.log(`je chercher à aller en : `)
+        console.log(new_goal)
         this.goto_goal(new_goal);
         carburant -= 1;
+        console.log(`Je suis en ${this.#x} : ${this.#y}`)
 
     }
 
 
     plus_de_carburant() {
-        if (this.#x != base.x || this.#y != base.y) {
+        if (this.#y != base.x || this.#x != base.y) {
             this.update_position_with_coord(base.x, base.y)
         }
         else { //on refill le carburant + on gère l'histoire des maps;
@@ -97,30 +101,40 @@ export class Drone {
         this.#map[this.#y][this.#x] = "cendres";
         let elem = document.getElementById(`${this.#x}:${this.#y}`);
         elem.classList.replace("feu", "cendres");
-        cases_en_feu.delete({});
+        cases_en_feu.delete(`${x}:${y}`);
         this.#carburant += -1;
     }
 
 
-    find_new_goal(close_fire) {
-        //1 - on regarde dans close_fire
-        if (close_fire.length != 0) {
-            //on choisir le premier, peut importe on pourrait randomiser si on voulait
-            return close_fire[0];
+    find_new_goal(close_fires) {
+        //1 - on regarde dans close_fires donc les feux à une case de distance
+        if (close_fires.length != 0) {
+            //on choisir le premier, peu importe on pourrait randomiser si on voulait
+            console.log("feu trouvé à une case")
+            return close_fires[0];
         }
         //2 - on regarde si ya des feux sur la map à plus d'une case
         if (this.#feux.size > 0) {
+            console.log("feu sur la map ")
             return this.feu_le_plus_proche();
         }
+
+        if (this.get_distance_entre({ x: this.#x, y: this.#y }, { x: base.x, y: base.y }) < 2 &&
+            this.#basic_goal) {
+            return this.#basic_goal;
+        }
+
         //3 - on regarde si on peut explorer
         let cases_inconnues = this.get_unknwown_tiles();
         if (cases_inconnues.length > 0) {
             //si il y en a plusieurs, on choisi la plus éloignée d'un autre drone
             let meilleure_case_iconnue = this.get_meilleure_case_inconnue(cases_inconnues);
+            console.log("case à explorer")
             return (meilleure_case_iconnue)
         }
         //4 - on regarde si on a une "grande direction" (goal de base), si non, on en demande une
         if (this.#basic_goal == null) {
+            console.log("get random goal !")
             this.get_random_goal();
         }
         return this.#basic_goal;
@@ -145,17 +159,21 @@ export class Drone {
         let unknwown_tiles = [];
 
         //parcours de bourrin, mais ça simplifie si on veut changer taille_vision
-        for (let i = this.#y - this.#taille_vision - 1; i <= this.#y + this.#taille_vision + 1; i += 1) {
-            for (let j = this.#x - this.#taille_vision - 1; j <= this.#x + this.#taille_vision + 1; j += 1) {
+        for (let i = this.#x - this.#taille_vision - 1; i <= this.#x + this.#taille_vision + 1; i += 1) {
+            for (let j = this.#y - this.#taille_vision - 1; j <= this.#y + this.#taille_vision + 1; j += 1) {
                 if (i >= 0 && i < this.#map.length &&
                     j >= 0 && j < this.#map.length &&
-                    this.#map[i][j] == undefined &&
-                    !this.#simulation.drone_at({})) {
-                    //La case n'est pas explorée, et pas occupé par un drone, on l'ajoute
+                    this.#map[i][j] == undefined) {
+                    console.log(this.#map[i][j]);
+                    console.log(vraie_map[i][j]);
+                    console.log(`coord : ${i}:${j}, resultat drone_closed_to : ${this.#simulation.drone_closed_to(i, j, this.#taille_vision)}`)
+                    //La case n'est pas explorée, et pas à côté d'un drone par un drone, on l'ajoute
                     unknwown_tiles.push({ x: j, y: i });
                 }
             }
         }
+        console.log("unkniw")
+        console.log(unknwown_tiles)
         return unknwown_tiles;
     }
 
@@ -179,36 +197,39 @@ export class Drone {
 
     update_vision() {
         //met à jour la vision du drone en fonction de taille_vision
-        let close_fire = []
-        for (let i = this.#y - this.#taille_vision; i <= this.#y + this.#taille_vision; i += 1) {
-            for (let j = this.#x - this.#taille_vision; j <= this.#x + this.#taille_vision; j += 1) {
+        let close_fires = []
+        for (let i = this.#x - this.#taille_vision; i <= this.#x + this.#taille_vision; i += 1) {
+            for (let j = this.#y - this.#taille_vision; j <= this.#y + this.#taille_vision; j += 1) {
                 if (i >= 0 && i < this.#map.length &&
                     j >= 0 && j < this.#map.length) {
-
+                    console.log("before update" + i + ":" + j)
+                    console.log(this.#map[i][j]);
                     //On met tout à jour, pour pouvoir faire des feux qui grandissent
                     this.#map[i][j] = vraie_map[i][j];
+                    console.log("after update")
+                    console.log(this.#map[i][j]);
                     //changement de css pour vraie_map
-                    let elem = document.getElementById(`${j}:${i}`);
+                    let elem = document.getElementById(`${i}:${j}`);
                     elem.classList.remove('inconnu');
 
                     if (this.#map[i][j] == "feu") {
                         // On l'ajoute si besoin dans les feux que voit ce drone
-                        if (!this.#feux.get({})) {
-                            this.#feux.set({}, true);
+                        if (!this.#feux.get(`${i}: ${j}`)) {
+                            this.#feux.set(`${i}: ${j}`, true);
                         }
                         //Si il n'y a pas d'autre drone dessus, on le met dans les feux proches
-                        if (!this.#simulation.drone_at({})) {
-                            close_fire.push({});
+                        if (!this.#simulation.drone_at(i, j)) {
+                            close_fires.push({ x: i, y: j });
                         }
                     }
-                    if (this.#map[i][j] == "cendres" && this.#feux.get({})) {
+                    if (this.#map[i][j] == "cendres" && this.#feux.get(`${i}: ${j}`)) {
                         //Un feu est devenu cendres, on le retire de la liste des feux
-                        this.#feux.delete({});
+                        this.#feux.delete(`${i}: ${j}`);
                     }
                 }
             }
         }
-        return close_fire;
+        return close_fires;
     }
 
 
@@ -240,22 +261,22 @@ export class Drone {
                 switch (random_sens) {
                     case 0:
                         if (this.#map[i][j] == undefined) {
-                            this.#basic_goal = { x: j, y: i };
+                            this.#basic_goal = { x: i, y: j };
                         }
                         break;
                     case 1:
                         if (this.#map[i][this.#map.length - j - 1] == undefined) {
-                            this.#basic_goal = { x: j, y: i };
+                            this.#basic_goal = { x: i, y: j };
                         }
                         break;
                     case 2:
                         if (this.#map[this.#map.length - i - 1][j] == undefined) {
-                            this.#basic_goal = { x: j, y: i };
+                            this.#basic_goal = { x: i, y: j };
                         }
                         break;
                     case 3:
                         if (this.#map[this.#map.length - i - 1][this.#map.length - j - 1] == undefined) {
-                            this.#basic_goal = { x: j, y: i }
+                            this.#basic_goal = { x: i, y: j }
                         }
                         break;
                 }
@@ -269,11 +290,9 @@ export class Drone {
     }
 
 
-    goto_goal() {
-
-
-        if (meilleurGoal.y == this.#y) { //même ligne
-            if (meilleurGoal.x < this.#x) {
+    goto_goal(meilleurGoal) {
+        if (meilleurGoal.x == this.#x) { //même ligne
+            if (meilleurGoal.y < this.#y) {
                 this.update_position_with_direction("GAUCHE");
                 return;
             } else {
@@ -281,8 +300,8 @@ export class Drone {
                 return;
             }
         }
-        if (meilleurGoal.x == this.#x) {//même colonne
-            if (meilleurGoal.y < this.#y) {
+        if (meilleurGoal.y == this.#y) {//même colonne
+            if (meilleurGoal.x < this.#x) {
                 this.update_position_with_direction("HAUT");
                 return;
             } else {
@@ -291,19 +310,19 @@ export class Drone {
             }
         }
         //Et là les cas relous en diagonale
-        if (this.#y > meilleurGoal.y && this.#x > meilleurGoal.x) {
+        if (this.#x > meilleurGoal.x && this.#y > meilleurGoal.y) {
             this.update_position_with_direction("HAUT-GAUCHE");
             return;
         }
-        if (this.#y > meilleurGoal.y && this.#x < meilleurGoal.x) {
+        if (this.#x > meilleurGoal.x && this.#y < meilleurGoal.y) {
             this.update_position_with_direction("HAUT-DROITE");
             return;
         }
-        if (this.#y < meilleurGoal.y && this.#x > meilleurGoal.x) {
+        if (this.#x < meilleurGoal.x && this.#y > meilleurGoal.y) {
             this.update_position_with_direction("BAS-GAUCHE");
             return;
         }
-        if (this.#y < meilleurGoal.y && this.#x < meilleurGoal.x) {
+        if (this.#x < meilleurGoal.x && this.#y < meilleurGoal.y) {
             this.update_position_with_direction("BAS-DROITE");
             return;
         }
@@ -313,16 +332,16 @@ export class Drone {
         let new_x = this.#x;
         let new_y = this.#y
         if (direction.includes("HAUT")) {
-            new_y += -1;
-        }
-        if (direction.includes("BAS")) {
-            new_y += 1;
-        }
-        if (direction.includes("GAUCHE")) {
             new_x += -1;
         }
-        if (direction.includes("DROITE")) {
+        if (direction.includes("BAS")) {
             new_x += 1;
+        }
+        if (direction.includes("GAUCHE")) {
+            new_y += -1;
+        }
+        if (direction.includes("DROITE")) {
+            new_y += 1;
         }
         let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
         element_remove.classList.remove("drone");

@@ -1,4 +1,4 @@
-import { Drone } from "./drone.js";
+import { Drone } from "./drone2.js";
 import { base, cases_en_feu, vraie_map } from "./index.js";
 
 
@@ -12,7 +12,7 @@ export class Simulation {
     #cases_a_ajouter_au_feu = [];
 
     constructor(propagation, nb_drones, taille_vision, taille_detection, carburant) {
-
+        console.log("création du partie avec")
         this.#casesConnues = 1; //la base est connue
         this.#carteCentreControle = this.create_map(vraie_map.length);
         this.#propagation = propagation;
@@ -46,7 +46,7 @@ export class Simulation {
         for (let i = 0; i < taille_map; i += 1) {
             map[i] = new Array(taille_map);
         }
-        map[base.y][base.x] = "base";
+        map[base.x][base.y] = "base";
         return map;
     }
 
@@ -56,7 +56,12 @@ export class Simulation {
             console.log("BUUUURRNNNN !!!!")
             this.apply_propagation();
         }
-        this.#drones.forEach(d => d.play_a_turn());
+        let i = 1;
+        this.#drones.forEach(d => {
+            console.log(`drone ${i} joue son tour`)
+            d.play_a_turn();
+            i += 1
+        });
     }
 
     set casesConnues(x) {
@@ -86,15 +91,15 @@ export class Simulation {
     }
 
     brule_les_arbres_autour(x, y) {
-        for (let i = y - 1; i <= y + 1; i += 1) {
-            for (let j = x - 1; j <= x + 1; j += 1) {
+        for (let i = x - 1; i <= x + 1; i += 1) {
+            for (let j = y - 1; j <= y + 1; j += 1) {
                 if (i < vraie_map.length && i >= 0 &&
                     j < vraie_map.length && j >= 0 &&
                     vraie_map[i][j] == "arbre" &&
                     Math.floor(Math.random() * 3) % 3 == 0) {
                     vraie_map[i][j] = "feu";
-                    this.#cases_a_ajouter_au_feu.push({ x: j, y: i });
-                    let elem = document.getElementById(`${j}:${i}`);
+                    this.#cases_a_ajouter_au_feu.push({ x: i, y: j });
+                    let elem = document.getElementById(`${i}:${j}`);
                     elem.classList.replace("arbre", "feu");
                 }
             }
@@ -110,8 +115,15 @@ export class Simulation {
         return false;
     }
 
-
-
-
+    drone_closed_to(x, y, distance) {
+        this.#drones.forEach(drone => {
+            if (x + distance <= drone.x &&
+                x - distance >= drone.x &&
+                y + distance <= drone.y &&
+                y - distance >= drone.y)
+                return true;
+        })
+        return false
+    }
 
 }
