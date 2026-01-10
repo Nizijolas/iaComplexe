@@ -88,8 +88,7 @@ export class Drone {
         if (this.#y != base.x || this.#x != base.y) {
             this.goto_goal(base);
         }
-        else if ( this.#carburant <= -10)
-         { //on refill le carburant + on gère l'histoire des maps;
+        else if (this.#carburant <= -10) { //on refill le carburant + on gère l'histoire des maps;
             this.#carburant = 40;
             this.copierInfosManquantesDansCarte();
             this.#map = JSON.parse(JSON.stringify(this.#simulation.mapCentreControle));//clone du tableau ( le clonage classique fonctionne pas pour les tableaux imbriqués..)
