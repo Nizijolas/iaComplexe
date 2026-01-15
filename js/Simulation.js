@@ -1,4 +1,4 @@
-import { Drone } from "./drone2.js";
+import { Drone } from "./drone.js";
 import { base, cases_en_feu, vraie_map } from "./index.js";
 
 

@@ -151,10 +151,6 @@ stepByStep.addEventListener('click', () => {
 
 function play(simulation) {
     simulation.update(); //fonction de l'interval
-    if (simulation.casesConnues == vraie_map.length * vraie_map.length
-    ) {
-        stopSimulation();
-    }
 }
 function stopSimulation() {
     clearInterval(interval);
