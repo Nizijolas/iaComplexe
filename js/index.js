@@ -18,13 +18,9 @@ function fill_vraie_map() {
 
     for (let x = 0; x < tailleMap; x += 1) {
         for (let y = 0; y < tailleMap; y += 1) {
-            //Création des feux, carré en bas à droite
-            if (x > 38 && y > 38) {
-                vraie_map[x][y] = "feu";
-                cases_en_feu.set(`${x}:${y}`, { x: x, y: y })
-            }
+        
             //Création de la base
-            else if (x == base.x && y == base.y) {
+            if (x == base.x && y == base.y) {
                 vraie_map[x][y] = "base";
             }
             //il reste que les arbres
@@ -34,7 +30,23 @@ function fill_vraie_map() {
         }
     }
 
-    //création de 10 anomalies pour humain
+    //création de 10 anomalies pour feu
+    for (let i = 0; i < 10; i++) {
+        let randomX = Math.floor(Math.random() * tailleMap);
+        let randomY = Math.floor(Math.random() * tailleMap);
+        while (vraie_map[randomX][randomY] == "feu" //tant que ces randomCoo sont déjà occupé par un feu/base/humain on continue
+            || vraie_map[randomX][randomY] == "base"
+        ) {
+            randomX = Math.floor(Math.random() * tailleMap);
+            randomY = Math.floor(Math.random() * tailleMap);
+        }
+        console.log(randomX)
+        console.log(randomY)
+        vraie_map[randomX][randomY] = "feu";
+        cases_en_feu.set(`${randomX}:${randomY}`, { x: randomX, y: randomY })
+
+    }
+
     for (let i = 0; i < 10; i++){
         let randomX = Math.floor(Math.random()*tailleMap);
         let randomY = Math.floor(Math.random() * tailleMap);
