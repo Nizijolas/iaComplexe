@@ -4,22 +4,23 @@
 
 ## 1 - Lancer le projet
 
-
 Pour lancer notre projet il faut lancer l'index html via un live server (Go live de VSCODE,  Codium etc).  
 Ou alors un lancer un serveur web en locale depuis la racine du projet par exemple avec Python :
 
 ```python
     python3 -m http.server 8000
 ```
+
 Puis dans un navigateur aller à l'url `http://127.0.0.1:8000/`
 
-## 2 - Faire des simulations.
+## 2 - Faire des simulations
 
 On se retrouve face à une carte en SVG   avec une base au centre, des arbres verts, et des anomalies rouges (feux) ainsi que des anomalies jaunes (humains blessés).  
 La carte est assombrie et s'éclaircira au fur et à mesures ques les drones decouvriront des cases.  
 Les anomalies sont placées aléatoirement à chaque reload de la page.  
 *Ce que l'on nomme 'base' dans le projet c'est le centre de contrôle.*
-### Paramètres :
+
+### Paramètres
 
 Il est possible de changer plusieurs paramètres via des inputs range avant de lancer une simulation :  
 **La vitesse de propagation** c'est la vitesse de propagation des anomalies de type feu, par défault elle est 0 ( pas de propagation ).  
@@ -31,17 +32,15 @@ Il est possible de changer plusieurs paramètres via des inputs range avant de l
   
 On imagine par exemple que les drones ont des interactions locales entre eux via des ondes, alors qu'ils doivent découvrir l'environnement via des capteurs visuels, c'est pourquoi que la **distance de détection des autres drones** et la **distance de vision** sont deux choses distinctes.
 
+### Faire fonctionner la simulation
 
-### Faire fonctionner la simulation :
 Une fois les paramètres sélectionnés,  
 Cliquez sur  `lancer  la simulation` , la simulation tournera alors avec la vitesse sélectionnée.  
-Vous pouvez  `mettre sur pause` une fois mis sur pause vous pourrez alors `relancer la simulation` ou alors avancer en tour par tour en cliquant sur `avancer d'une itération`. 
+Vous pouvez  `mettre sur pause` une fois mis sur pause vous pourrez alors `relancer la simulation` ou alors avancer en tour par tour en cliquant sur `avancer d'une itération`.
   
 A tout moment vous pouvez réinitialiser et revenir à l'écran de sélection des paramètres pour faire une nouvelle simulation en cliquant sur `Réinitialiser`.
 
-
 ## 3 Structure du projet  
-
 
 **Le fichier index.html** c'est le point d'entrée du projet et le javaScript va modifier les éléemnts du dom.  
 **Le fichier styles.css** Comme nous fonctionnons avec du SVG pour visualiser la simulation la partie CSS est importante, car nous modifions les classes du SVG au fil de la simulation.  
