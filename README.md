@@ -42,7 +42,7 @@ A tout moment vous pouvez réinitialiser et revenir à l'écran de sélection de
 
 ## 3 Structure du projet  
 
-**Le fichier index.html** c'est le point d'entrée du projet et le javaScript va modifier les éléemnts du dom.  
+**Le fichier index.html** c'est le point d'entrée du projet et le javaScript va modifier les éléments du dom.  
 **Le fichier styles.css** Comme nous fonctionnons avec du SVG pour visualiser la simulation la partie CSS est importante, car nous modifions les classes du SVG au fil de la simulation.  
 **Le fichier index.js** sert à gérer la génération de la carte de base, la génération du SVG de base, la gestion des paramètres et des bouttons de lancement.  
 **Le fichier Simulation.js** contient la classe qui encapsule la logique d'une simulation , update à chaque itération , propagation ... Une Simulation contient évidemment un Array de Drone. C'est la classe Simulation qui contient la carte du centre de controle mis à jour par chaque drone à chaque fois qu'il revient à la base.  
