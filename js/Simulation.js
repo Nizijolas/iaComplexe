@@ -105,12 +105,12 @@ export class Simulation {
             for (let j = y - 1; j <= y + 1; j += 1) {
                 if (i < vraie_map.length && i >= 0 &&
                     j < vraie_map.length && j >= 0 &&
-                    ( vraie_map[i][j] == "arbre" || vraie_map[i][j] == "humain") &&
-                    Math.floor(Math.random() * 3) % 3 == 0) {
+                    (vraie_map[i][j] == "arbre" || vraie_map[i][j] == "humain") &&
+                    Math.floor(Math.random() * 3) % 3 == 0) { //une chance sur 3 de mettre le feu
                     this.#cases_a_ajouter_au_feu.push({ x: i, y: j });
                     let elem = document.getElementById(`${i}:${j}`);
                     elem.classList.replace("arbre", "feu");
-                    if ( vraie_map[i][j] == "humain"){  // <------------------- ici pour les humains brûlés
+                    if (vraie_map[i][j] == "humain") {  // <------------------- ici pour les humains brûlés
                         elem.classList.replace("humain", "feu");
                         this.ajouterHumainBrule();
                     }
@@ -140,22 +140,22 @@ export class Simulation {
                 x - distance >= drone.x &&
                 y + distance <= drone.y &&
                 y - distance >= drone.y)
-                return true;
+                result = true;
         })
-        return false
+        return result
     }
 
     //appellé depuis la classe Drone quand il trouve un humain
-    ajouterHumainSauve(){
+    ajouterHumainSauve() {
         this.#humainsSauves += 1;
         const humainsSauves = document.getElementById("humainsSauves");
         humainsSauves.innerText = `Humains sauvés : ${this.#humainsSauves}`;
     }
-    ajouterHumainBrule(){
+    ajouterHumainBrule() {
         this.#humainsBrules += 1;
         const humainsBrules = document.getElementById("humainsBrules");
         humainsBrules.innerText = `Humains brûlés : ${this.#humainsBrules}`;
     }
 
 
-}
+} false
