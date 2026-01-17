@@ -100,8 +100,8 @@ export class Drone {
         //le drone eteint un feu
         vraie_map[this.#x][this.#y] = "cendres";
         this.#map[this.#x][this.#y] = "cendres";
-        let elem = document.getElementById(`${this.#x}:${this.#y}`);
-        elem.classList.replace("feu", "cendres");
+        //let elem = document.getElementById(`${this.#x}:${this.#y}`);
+        //elem.classList.replace("feu", "cendres");
         cases_en_feu.delete(`${this.#x}:${this.#y}`);
         this.#feux.delete(`${this.#x}:${this.#y}`);
         this.#carburant += -1;
@@ -197,8 +197,8 @@ export class Drone {
                     //On met tout à jour, pour pouvoir faire des feux qui grandissent
                     this.#map[i][j] = vraie_map[i][j];
                     //changement de css pour vraie_map
-                    let elem = document.getElementById(`${i}:${j}`);
-                    elem.classList.remove('inconnu');
+                    //let elem = document.getElementById(`${i}:${j}`);
+                    //elem.classList.remove('inconnu');
 
                     if (this.#map[i][j] == "feu") {
                         // On l'ajoute si besoin dans les feux que voit ce drone
@@ -221,7 +221,7 @@ export class Drone {
                         //On a trouvé un humain avant qu'il soit brûlé alors il est sauvé on transforme la case en arbre
                         this.#map[i][j] = "arbre";
                         vraie_map[i][j] = "arbre"
-                        elem.classList.replace("humain", "arbre");
+                        //elem.classList.replace("humain", "arbre");
                         this.#simulation.ajouterHumainSauve();
                     }
                 }
@@ -352,11 +352,11 @@ export class Drone {
 
     update_position_with_coord(x, y) {
         //déplace le drone sur les coordonnées (x:y)
-        let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
-        element_remove.classList.remove("drone");
+        //let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
+        //element_remove.classList.remove("drone");
         this.#x = x; this.#y = y;
-        let element_add = document.getElementById(`${this.#x}:${this.#y}`)
-        element_add.classList.add("drone");
+        //let element_add = document.getElementById(`${this.#x}:${this.#y}`)
+        //element_add.classList.add("drone");
         if (this.#basic_goal != null && this.#x == this.#basic_goal.x && this.#y == this.#basic_goal.y) {
             this.#basic_goal = null;
         }

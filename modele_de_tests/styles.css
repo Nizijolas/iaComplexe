@@ -1,0 +1,135 @@
+body {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    background-color: rgb(116, 116, 116);
+}
+
+#map {
+    display: block;
+    margin: auto;
+    border: solid 2px white;
+}
+
+
+
+#buttonsContainer {
+    display: flex;
+    margin: 10px auto;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 40%;
+}
+
+
+
+button {
+    background-color: white;
+    color: black;
+    border-radius: 5px;
+    border: none;
+    padding: 5px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: rgb(136, 136, 136);
+    color: white;
+    cursor: pointer;
+}
+
+#properties {
+    border: solid 1px;
+    border-radius: 5px;
+    margin: 10px auto;
+    width: 60%;
+}
+
+#properties>p {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+#forms {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+form {
+    margin: 5px;
+    display: flex;
+    justify-content: center;
+    width: 40%;
+    gap: 10px;
+    align-items: center;
+}
+
+/* classe des éléments */
+.base {
+    fill: lightblue;
+}
+
+.arbre {
+    fill: green;
+}
+
+.humain {
+    fill: rgba(255, 252, 100, 0.926);
+}
+
+.feu {
+    fill: red;
+}
+
+.cendres {
+    fill: darkgray;
+}
+
+.inconnu {
+    filter: brightness(0.4);
+}
+
+.drone {
+    fill: white
+}
+
+
+/* Partie statistiques :  */
+
+#statistiques {
+    display: none;
+    margin: 10px auto;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 40%;
+}
+
+#humainsSauves {
+    color: rgb(37, 173, 37);
+    font: bold;
+}
+
+#humainsBrules {
+    color: rgb(230, 29, 29);
+    font: bold;
+}
+
+#arbresBrules {
+    color:lightgray;
+    font:bold;
+}
+
+
+
+#humainsSauves,
+#humainsBrules,
+#arbresBrules {
+    background-color: black;
+    border-radius: 5px;
+    padding: 5px;
+}
