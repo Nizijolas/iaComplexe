@@ -159,6 +159,8 @@ stepByStep.addEventListener('click', () => {
     //gestion du step by step
     if (!simulation) {
         simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
+        properties.style.display = "none";
+        statistiques.style.display = "flex";
     }
     simulation.update();
 })
