@@ -37,8 +37,8 @@ function fill_vraie_map() {
             randomX = Math.floor(Math.random() * tailleMap);
             randomY = Math.floor(Math.random() * tailleMap);
         }
-        console.log(randomX)
-        console.log(randomY)
+        //pouet(randomX)
+        //pouet(randomY)
         vraie_map[randomX][randomY] = "feu";
         cases_en_feu.set(`${randomX}:${randomY}`, { x: randomX, y: randomY })
 
@@ -54,8 +54,8 @@ function fill_vraie_map() {
             randomX = Math.floor(Math.random() * tailleMap);
             randomY = Math.floor(Math.random() * tailleMap);
         }
-        console.log(randomX)
-        console.log(randomY)
+        //pouet(randomX)
+        //pouet(randomY)
         vraie_map[randomX][randomY] = "humain";
     }
 
@@ -123,6 +123,48 @@ const propagation = document.getElementById("propagation");
 const statistiques = document.getElementById("statistiques");
 
 
+const testbutton = document.getElementById("tests");
+
+testbutton.addEventListener('click', () => {
+    console.log("coucous")
+    let hb = [];
+    let ab = [];
+    let nb_iter = 100
+    for (let i = 0; i < nb_iter; i += 1) {
+        console.log(`simulation #${i}`)
+        simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
+        simulation.update();
+
+        for (let j = 0; j < 1500; j += 1) {
+            simulation.update();
+        }
+        hb.push(simulation.humainsBrules);
+        ab.push(simulation.arbresBrules);
+        stopSimulation();
+    }
+    let hb_total = 0;
+    let ab_total = 0;
+    for (let i = 0; i < nb_iter; i += 1) {
+        hb_total += hb[i];
+        ab_total += ab[i];
+    }
+    console.log(`Total d'arbres brules : ${ab_total / nb_iter}`);
+    //propa 3
+    //1309 avec dectect 0
+    //1000 avec 10
+
+    //propa 2
+    //816 avec 0
+    //712 avec 10
+
+    //propa 4
+    //1530 avec 0
+    //1321 avec 10
+
+    console.log(`Total d'humains brules : ${hb_total / nb_iter}`)
+
+})
+
 lancerSimulation.addEventListener("click", () => {
     //lancement de la simuation en mode continue (pas step by step)
     if (isRunning) { //si la simulation était en cours
@@ -133,7 +175,7 @@ lancerSimulation.addEventListener("click", () => {
     }
     else { //On lance ( ou relance ) la simulation 
         stepByStep.style.display = "none";
-        console.log(vraie_map[base.x][base.y])
+        //pouet(vraie_map[base.x][base.y])
         if (!simulation) {
             // si simulation est undefined c'est que c'est le début sinon c'est qu'on avait mis sur pause;
             simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
@@ -161,7 +203,7 @@ function play(simulation) {
 function stopSimulation() {
     //arrêt de la simulation
     clearInterval(interval);
-    alert("La simulation s'est terminée");
+    //alert("La simulation s'est terminée");
     cases_en_feu = new Map();
     fill_vraie_map();
     setMap();

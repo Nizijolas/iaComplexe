@@ -91,6 +91,13 @@ export class Simulation {
         this.#carteCentreControle = x;
     }
 
+    get arbresBrules() {
+        return this.#arbresBrules;
+    }
+    get humainsBrules() {
+        return this.#humainsBrules;
+    }
+
     apply_propagation() {
         //On applique la progation à chaque case feu
         this.#cases_a_ajouter_au_feu = [];
@@ -112,7 +119,7 @@ export class Simulation {
                     Math.floor(Math.random() * 3) % 3 == 0) { //une chance sur 3 de mettre le feu
                     this.#cases_a_ajouter_au_feu.push({ x: i, y: j });
                     let elem = document.getElementById(`${i}:${j}`);
-                    if (vraie_map[i][j] == "arbre" ){ // <--------------------- ici pour les arbres brûlés
+                    if (vraie_map[i][j] == "arbre") { // <--------------------- ici pour les arbres brûlés
                         elem.classList.replace("arbre", "feu");
                         this.ajouterArbreBrule();
                     }
