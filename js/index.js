@@ -131,11 +131,13 @@ testbutton.addEventListener('click', () => {
     let ab = [];
     let nb_iter = 1000
     for (let i = 0; i < nb_iter; i += 1) {
-        console.log(`simulation #${i}`)
+        if (i % 10 == 0) {
+            console.log(`simulation #${i}`)
+        }
         simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
         simulation.update();
 
-        for (let j = 0; j < 1500; j += 1) {
+        for (let j = 0; j < 2000; j += 1) {
             simulation.update();
         }
         hb.push(simulation.humainsBrules);
