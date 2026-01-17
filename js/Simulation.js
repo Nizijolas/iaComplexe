@@ -10,6 +10,8 @@ export class Simulation {
     #propagation;
     #iterations = 0;
     #cases_a_ajouter_au_feu = [];
+    #humainsSauves = 0;
+    #humainsBrules = 0;
 
     constructor(propagation, nb_drones, taille_vision, taille_detection, carburant) {
         console.log("création du partie avec")
@@ -39,6 +41,12 @@ export class Simulation {
                     break;
             }
         }
+
+        //On initie les statistiques sur les humains
+        const humainsSauves = document.getElementById("humainsSauves");
+        humainsSauves.innerText = `Humains sauvés : ${this.#humainsSauves}`;
+        const humainsBrules = document.getElementById("humainsBrules");
+        humainsBrules.innerText = `Humains brûlés : ${this.#humainsBrules}`;
     }
 
     create_map(taille_map) {
@@ -95,12 +103,17 @@ export class Simulation {
             for (let j = y - 1; j <= y + 1; j += 1) {
                 if (i < vraie_map.length && i >= 0 &&
                     j < vraie_map.length && j >= 0 &&
-                    vraie_map[i][j] == "arbre" &&
+                    ( vraie_map[i][j] == "arbre" || vraie_map[i][j] == "humain") &&
                     Math.floor(Math.random() * 3) % 3 == 0) {
-                    vraie_map[i][j] = "feu";
                     this.#cases_a_ajouter_au_feu.push({ x: i, y: j });
                     let elem = document.getElementById(`${i}:${j}`);
                     elem.classList.replace("arbre", "feu");
+                    if ( vraie_map[i][j] == "humain"){  // <------------------- ici pour les humains brûlés
+                        elem.classList.replace("humain", "feu");
+                        this.ajouterHumainBrule();
+                    }
+                    vraie_map[i][j] = "feu";
+
                 }
             }
         }
@@ -126,5 +139,18 @@ export class Simulation {
         })
         return false
     }
+
+    //appellé depuis la classe Drone quand il trouve un humain
+    ajouterHumainSauve(){
+        this.#humainsSauves += 1;
+        const humainsSauves = document.getElementById("humainsSauves");
+        humainsSauves.innerText = `Humains sauvés : ${this.#humainsSauves}`;
+    }
+    ajouterHumainBrule(){
+        this.#humainsBrules += 1;
+        const humainsBrules = document.getElementById("humainsBrules");
+        humainsBrules.innerText = `Humains brûlés : ${this.#humainsBrules}`;
+    }
+
 
 }

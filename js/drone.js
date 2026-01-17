@@ -228,6 +228,13 @@ export class Drone {
                         //Un feu est devenu cendres, on le retire de la liste des feux
                         this.#feux.delete(`${i}:${j}`);
                     }
+                    if(this.#map[i][j] == "humain"){ 
+                        //On a trouvé un humain avant qu'il soit brûlé alors il est sauvé on transforme la case en arbre
+                        this.#map[i][j] = "arbre";
+                        vraie_map[i][j] = "arbre"
+                        elem.classList.replace("humain", "arbre");
+                        this.#simulation.ajouterHumainSauve();
+                    }
                 }
             }
         }

@@ -14,7 +14,7 @@ body{
 
 
 
-#buttonsContainer{
+#buttonsContainer, #countHumans {
     display: flex;
     margin: 10px auto;
     justify-content: space-evenly;
@@ -92,3 +92,18 @@ form{
     fill: white
 }
 
+#humainsSauves{
+    color: rgb(37, 173, 37);
+    font:bold;
+}
+
+#humainsBrules{
+    color: rgb(230, 29, 29);
+    font:bold;
+}
+
+#humainsSauves, #humainsBrules{
+    background-color: black;
+    border-radius: 5px;
+    padding: 5px;
+}
