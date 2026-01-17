@@ -120,6 +120,8 @@ const vision = document.getElementById("visionDrones");
 const detection = document.getElementById("detectionDrones");
 const carburant = document.getElementById("carburant");
 const propagation = document.getElementById("propagation");
+const humainsSauves = document.getElementById("humainsSauves") ;
+const humainsBrules = document.getElementById("humainsBrules");
 
 
 lancerSimulation.addEventListener("click", () => {
@@ -169,6 +171,8 @@ function stopSimulation() {
     lancerSimulation.innerText = "Lancer simulation";
     stepByStep.style.display = "block";
     properties.style.display = "block";
+    humainsSauves.innerText = "";
+    humainsBrules.innerText = "";
 }
 const reinit = document.getElementById("reinit");
 
