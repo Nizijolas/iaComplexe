@@ -44,12 +44,12 @@ export class Simulation {
         }
 
         //On initie les statistiques
-        const humainsSauves = document.getElementById("humainsSauves");
+        /* const humainsSauves = document.getElementById("humainsSauves");
         humainsSauves.innerText = `Humains sauvés : ${this.#humainsSauves}`;
         const humainsBrules = document.getElementById("humainsBrules");
         humainsBrules.innerText = `Humains brûlés : ${this.#humainsBrules}`;
         const arbresBrules = document.getElementById("arbresBrules");
-        arbresBrules.innerText = `Arbres brûlés : ${this.#arbresBrules}`;
+        arbresBrules.innerText = `Arbres brûlés : ${this.#arbresBrules}`; */
     }
 
     create_map(taille_map) {
@@ -118,13 +118,13 @@ export class Simulation {
                     (vraie_map[i][j] == "arbre" || vraie_map[i][j] == "humain") &&
                     Math.floor(Math.random() * 3) % 3 == 0) { //une chance sur 3 de mettre le feu
                     this.#cases_a_ajouter_au_feu.push({ x: i, y: j });
-                    let elem = document.getElementById(`${i}:${j}`);
+                    //let elem = document.getElementById(`${i}:${j}`);
                     if (vraie_map[i][j] == "arbre") { // <--------------------- ici pour les arbres brûlés
-                        elem.classList.replace("arbre", "feu");
+                        //elem.classList.replace("arbre", "feu");
                         this.ajouterArbreBrule();
                     }
                     if (vraie_map[i][j] == "humain") {  // <------------------- ici pour les humains brûlés
-                        elem.classList.replace("humain", "feu");
+                        //elem.classList.replace("humain", "feu");
                         this.ajouterHumainBrule();
                     }
                     vraie_map[i][j] = "feu";
@@ -161,19 +161,19 @@ export class Simulation {
     //appellé depuis la classe Drone quand il trouve un humain
     ajouterHumainSauve() {
         this.#humainsSauves += 1;
-        const humainsSauves = document.getElementById("humainsSauves");
-        humainsSauves.innerText = `Humains sauvés : ${this.#humainsSauves}`;
+        //const humainsSauves = document.getElementById("humainsSauves");
+        //humainsSauves.innerText = `Humains sauvés : ${this.#humainsSauves}`;
     }
     ajouterHumainBrule() {
         this.#humainsBrules += 1;
-        const humainsBrules = document.getElementById("humainsBrules");
-        humainsBrules.innerText = `Humains brûlés : ${this.#humainsBrules}`;
+        //const humainsBrules = document.getElementById("humainsBrules");
+        //humainsBrules.innerText = `Humains brûlés : ${this.#humainsBrules}`;
     }
 
     ajouterArbreBrule() {
         this.#arbresBrules += 1;
-        const arbresBrules = document.getElementById("arbresBrules");
-        arbresBrules.innerText = `Arbres brûlés : ${this.#arbresBrules}`;
+        //const arbresBrules = document.getElementById("arbresBrules");
+        //arbresBrules.innerText = `Arbres brûlés : ${this.#arbresBrules}`;
     }
 
 

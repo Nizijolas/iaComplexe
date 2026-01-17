@@ -106,7 +106,7 @@ function setMap() {
 
 fill_vraie_map();
 create_base_map();
-setMap();
+//setMap();
 var interval;
 var isRunning = false;
 var simulation;
@@ -129,7 +129,7 @@ testbutton.addEventListener('click', () => {
     console.log("coucous")
     let hb = [];
     let ab = [];
-    let nb_iter = 100
+    let nb_iter = 1000
     for (let i = 0; i < nb_iter; i += 1) {
         console.log(`simulation #${i}`)
         simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
@@ -142,12 +142,21 @@ testbutton.addEventListener('click', () => {
         ab.push(simulation.arbresBrules);
         stopSimulation();
     }
+    statistiques.style.display = "flex";
+
     let hb_total = 0;
     let ab_total = 0;
     for (let i = 0; i < nb_iter; i += 1) {
         hb_total += hb[i];
         ab_total += ab[i];
     }
+    let ab_moyen = ab_total / nb_iter;
+    let hb_moyen = hb_total / nb_iter;
+    const humainsBrules = document.getElementById("humainsBrules");
+    humainsBrules.innerText = `Humains brûlés : ${hb_moyen}`;
+
+    const arbresBrules = document.getElementById("arbresBrules");
+    arbresBrules.innerText = `Arbres brûlés : ${ab_moyen}`;
     console.log(`Total d'arbres brules : ${ab_total / nb_iter}`);
     //propa 3
     //1309 avec dectect 0
@@ -206,7 +215,7 @@ function stopSimulation() {
     //alert("La simulation s'est terminée");
     cases_en_feu = new Map();
     fill_vraie_map();
-    setMap();
+    //setMap();
     create_base_map();
     simulation = null;
     isRunning = false;
