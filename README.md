@@ -38,7 +38,7 @@ Il est possible de changer plusieurs paramètres via des inputs range avant de l
 **La distance de vision** il s'agit du périmètre de découverte des drones autour d'eux, idéalement mettre une valeur plutôt faible pour plus de pertinence.  
 **La vitesse**   il s'agit du temps absolu en ms pour chaque itération de la simulation, donc contre intuitivement plus on met cet input faible plus la simulation sera rapide.  
 **Carburant** il s'agit de l'autonomie qu'a chaque drone avant de revenir à la base idéalement mis à 30 pour respecter la consigne.  
-**Distance de détection des autres drones** les drones cherchent à s'éviter entre eux pour optimiser l'exploration, ce paramètre sert à régler la distance de detection entre eux.
+**Distance de détection des autres drones** les drones cherchent à s'éviter entre eux pour optimiser l'exploration, ce paramètre sert à régler la distance de detection entre eux.  
 **Evitement** Permet d'autoriser ou non aux drones de se rendre sur une cases où un autre drone est déjà présent
   
 On imagine par exemple que les drones ont des interactions locales entre eux via des ondes, alors qu'ils doivent découvrir l'environnement via des capteurs visuels, c'est pourquoi que la **distance de détection des autres drones** et la **distance de vision** sont deux choses distinctes.
@@ -60,7 +60,7 @@ A tout moment vous pouvez réinitialiser et revenir à l'écran de sélection de
 **Le fichier Drone.js** Probablement le fichier le plus important du projet car il contient la classe Drone qui encapsule la logique d'un drone, et quel comportement et interaction il aura avec l'environnement, la base, les autres drones...  
 **Le fichier create_map.js** Un module utilitaire pour générer des tableaux à deux dimensions vides, qui nous servent dans drone.js, index.js, Simulation.js comme structure de donnée pour représenter la carte de la simulation.
 
-**Le répertoire modele_de_tests** contient une version du projet permettant d'effectuer des tests en séries pour évaluer les paramètres
+**Le répertoire modele_de_tests** contient une version du projet permettant d'effectuer des tests en séries pour évaluer les paramètre  
 **Le fichier Resultats_tests.ods** contient des tableaux avec les résultats des tests que nous avons menés
 
 ## Faire des tests
