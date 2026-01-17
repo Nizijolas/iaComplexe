@@ -120,8 +120,7 @@ const vision = document.getElementById("visionDrones");
 const detection = document.getElementById("detectionDrones");
 const carburant = document.getElementById("carburant");
 const propagation = document.getElementById("propagation");
-const humainsSauves = document.getElementById("humainsSauves") ;
-const humainsBrules = document.getElementById("humainsBrules");
+const statistiques = document.getElementById("statistiques");
 
 
 lancerSimulation.addEventListener("click", () => {
@@ -139,6 +138,7 @@ lancerSimulation.addEventListener("click", () => {
             // si simulation est undefined c'est que c'est le début sinon c'est qu'on avait mis sur pause;
             simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));
             properties.style.display = "none";
+            statistiques.style.display = "flex";
         }
         interval = setInterval(play, vitesse.value, simulation);
         lancerSimulation.innerText = "mettre sur pause";
@@ -171,8 +171,8 @@ function stopSimulation() {
     lancerSimulation.innerText = "Lancer simulation";
     stepByStep.style.display = "block";
     properties.style.display = "block";
-    humainsSauves.innerText = "";
-    humainsBrules.innerText = "";
+    statistiques.style.display = "none";
+
 }
 const reinit = document.getElementById("reinit");
 

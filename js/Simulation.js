@@ -12,6 +12,7 @@ export class Simulation {
     #cases_a_ajouter_au_feu = [];
     #humainsSauves = 0;
     #humainsBrules = 0;
+    #arbresBrules = 10;
 
     constructor(propagation, nb_drones, taille_vision, taille_detection, carburant) {
         this.#casesConnues = 1; //la base est connue
@@ -42,11 +43,13 @@ export class Simulation {
             }
         }
 
-        //On initie les statistiques sur les humains
+        //On initie les statistiques
         const humainsSauves = document.getElementById("humainsSauves");
         humainsSauves.innerText = `Humains sauvés : ${this.#humainsSauves}`;
         const humainsBrules = document.getElementById("humainsBrules");
         humainsBrules.innerText = `Humains brûlés : ${this.#humainsBrules}`;
+        const arbresBrules = document.getElementById("arbresBrules");
+        arbresBrules.innerText = `Arbres brûlés : ${this.#arbresBrules}`;
     }
 
     create_map(taille_map) {
@@ -109,7 +112,10 @@ export class Simulation {
                     Math.floor(Math.random() * 3) % 3 == 0) { //une chance sur 3 de mettre le feu
                     this.#cases_a_ajouter_au_feu.push({ x: i, y: j });
                     let elem = document.getElementById(`${i}:${j}`);
-                    elem.classList.replace("arbre", "feu");
+                    if (vraie_map[i][j] == "arbre" ){ // <--------------------- ici pour les arbres brûlés
+                        elem.classList.replace("arbre", "feu");
+                        this.ajouterArbreBrule();
+                    }
                     if (vraie_map[i][j] == "humain") {  // <------------------- ici pour les humains brûlés
                         elem.classList.replace("humain", "feu");
                         this.ajouterHumainBrule();
@@ -157,5 +163,11 @@ export class Simulation {
         humainsBrules.innerText = `Humains brûlés : ${this.#humainsBrules}`;
     }
 
+    ajouterArbreBrule() {
+        this.#arbresBrules += 1;
+        const arbresBrules = document.getElementById("arbresBrules");
+        arbresBrules.innerText = `Arbres brûlés : ${this.#arbresBrules}`;
+    }
 
-} false
+
+} 
