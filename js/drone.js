@@ -2,17 +2,17 @@
 import { base, cases_en_feu, vraie_map } from "./index.js";
 export class Drone {
 
-    //Position x & y d'un drône
-    #x;
-    #y;
-    #map;
+    //Attributs du drone
+    #x; //pos x
+    #y; //pos y
+    #map; //carte individuelle du drone
     #carburant;
-    #taille_vision;
-    #basic_goal;
-    #simulation;
-    #drone_detection;
-    #close_drones = [];
-    #feux;
+    #taille_vision; //distance vision
+    #basic_goal; // objectif par défaut
+    #simulation; //pour accéder à la positions des rones proches et la carte de la base
+    #drone_detection; //distance de détection des drones
+    #close_drones = []; //drones proches
+    #feux; //feux connus
 
 
 
@@ -25,7 +25,7 @@ export class Drone {
         this.#taille_vision = taille_vision;
         this.#simulation = simulation; // le drône doit avoir un pointeur de la simulation dans laquelle il est
         this.#drone_detection = taille_detection;
-        this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10) - (carburant / 20));
+        this.#carburant = carburant + Math.floor(Math.random() * (carburant / 10) - (carburant / 20)); //10% d'aléatoire sur le carburant
         this.#basic_goal = { x: goalx, y: goaly };
         this.#feux = new Map();
         this.update_vision(taille_vision);
@@ -74,18 +74,16 @@ export class Drone {
         //Sinon, on trouve un bon objectif
         let new_goal = this.find_new_goal(close_fires);
         //On va vers le nouveau but
-        console.log(`Je suis en ${this.#x} : ${this.#y}`)
-        console.log(`je chercher à aller en : `)
-        console.log(new_goal)
         this.goto_goal(new_goal);
         this.#carburant -= 1;
-        console.log(`Je suis en ${this.#x} : ${this.#y}`)
 
     }
 
 
     plus_de_carburant() {
+        //gestion en cas de de carburant <= 0
         if (this.#y != base.x || this.#x != base.y) {
+            //le drone n'est pas à la base, il y va
             this.goto_goal(base);
         }
         else if (this.#carburant <= -10) { //on refill le carburant + on gère l'histoire des maps;
@@ -99,6 +97,7 @@ export class Drone {
     }
 
     eteindre_feu() {
+        //le drone eteint un feu
         vraie_map[this.#x][this.#y] = "cendres";
         this.#map[this.#x][this.#y] = "cendres";
         let elem = document.getElementById(`${this.#x}:${this.#y}`);
@@ -113,30 +112,22 @@ export class Drone {
         //1 - on regarde dans close_fires donc les feux à une case de distance
         if (close_fires.length != 0) {
             //on choisir le premier, peu importe on pourrait randomiser si on voulait
-            console.log("feu trouvé à une case")        //3 - on regarde si on peut explorer
-
             return close_fires[0];
         }
         //2 - on regarde si ya des feux sur la map à plus d'une case
         if (this.#feux.size > 0) {
-            console.log("feu sur la map ")
             return this.feu_le_plus_proche();
         }
 
-        /*         if (this.get_distance_entre({ x: this.#x, y: this.#y }, { x: base.x, y: base.y }) < 2 &&
-                    this.#basic_goal) {
-                    return this.#basic_goal;
-                } */
-
         //3 - on regarde si on peut explorer
-        let cases_inconnues = this.get_unknwown_tiles();
+        let cases_inconnues = this.get_unknwown_tiles(); //cases inconnues proches
         if (cases_inconnues.length > 0) {
             //si il y en a plusieurs, on choisi la plus éloignée d'un autre drone
             let meilleure_case_iconnue = this.get_meilleure_case_inconnue(cases_inconnues);
             console.log("case à explorer")
             return (meilleure_case_iconnue)
         }
-        //4 - on regarde si on a une "grande direction" (goal de base), si non, on en demande une
+        //4 - on regarde si on a une "grande direction" (objectif par défaut), si non, on en demande une
         if (this.#basic_goal == null) {
             console.log("get random goal !")
             this.get_random_goal();
@@ -146,6 +137,7 @@ export class Drone {
 
 
     feu_le_plus_proche() {
+        //identifie la position du feu le plus proche du drone
         let distance_min = vraie_map.length * vraie_map.length;
         let feu_le_plus_proche;
         this.#feux.forEach((coord, key) => {
@@ -154,23 +146,19 @@ export class Drone {
                 feu_le_plus_proche = coord;
             }
         });
-
-
         return feu_le_plus_proche;
     }
 
     get_unknwown_tiles() {
-        //On regarde les cases non explorées autour de soi
+        //Trouver les cases non explorées autour de soi, sans drone adjacent
         let unknwown_tiles = [];
-
-        //parcours de bourrin, mais ça simplifie si on veut changer taille_vision
         for (let i = this.#x - this.#taille_vision - 1; i <= this.#x + this.#taille_vision + 1; i += 1) {
             for (let j = this.#y - this.#taille_vision - 1; j <= this.#y + this.#taille_vision + 1; j += 1) {
                 if (i >= 0 && i < this.#map.length &&
                     j >= 0 && j < this.#map.length &&
                     this.#map[i][j] == undefined &&
                     !this.#simulation.drone_closed_to(i, j, this.#taille_vision)) {
-                    //La case n'est pas explorée, et pas à côté d'un drone par un drone, on l'ajoute
+                    //La case n'est pas explorée, et pas à côté d'un drone, on l'ajoute
                     unknwown_tiles.push({ x: i, y: j });
                 }
             }
@@ -179,6 +167,7 @@ export class Drone {
     }
 
     get_meilleure_case_inconnue(cases_inconnues) {
+        //renvoie la case inconnue la plus éloignée des autres drones détectés
         let distance_max = 0;
         let meilleures_cases = [cases_inconnues[0]];
         console.log(this.#close_drones)
@@ -257,7 +246,7 @@ export class Drone {
 
     get_random_goal() {
         //on regarde sur la map si il reste des cases inexplorées
-        let random_sens = Math.round(Math.random() * 10) % 4; //pour voir dans quel sens on va aller
+        let random_sens = Math.round(Math.random() * 10) % 4; //pour voir dans quel sens on va aller et mettre un peu d'aléatoire
         console.log(`random sens = ${random_sens}`)
 
         for (let i = 0; i < this.#map.length && this.#basic_goal == null; i += 1) {
@@ -286,6 +275,7 @@ export class Drone {
                 }
             }
         }
+        //si toutes cases ont été explorées, alors on choisi une case au hasard
         if (this.#basic_goal == null) {
             let goal_x = Math.floor(Math.random() * this.#map.length);
             let goal_y = Math.floor(Math.random() * this.#map.length);
@@ -295,6 +285,7 @@ export class Drone {
 
 
     goto_goal(meilleurGoal) {
+        //Permet de savoir dans quelle direction aller
         if (meilleurGoal.x == this.#x) { //même ligne
             if (meilleurGoal.y < this.#y) {
                 this.update_position_with_direction("GAUCHE");
@@ -313,7 +304,7 @@ export class Drone {
                 return;
             }
         }
-        //Et là les cas relous en diagonale
+        //Cas en diagonale
         if (this.#x > meilleurGoal.x && this.#y > meilleurGoal.y) {
             this.update_position_with_direction("HAUT-GAUCHE");
             return;
@@ -333,6 +324,7 @@ export class Drone {
     }
 
     update_position_with_direction(direction) {
+        //Déplace le drone dans la direction voulue
         let new_x = this.#x;
         let new_y = this.#y
         if (direction.includes("HAUT")) {
@@ -354,7 +346,7 @@ export class Drone {
 
 
     update_position_with_coord(x, y) {
-
+        //déplace le drone sur les coordonnées (x:y)
         let element_remove = document.getElementById(`${this.#x}:${this.#y}`)
         element_remove.classList.remove("drone");
         this.#x = x; this.#y = y;
@@ -367,6 +359,7 @@ export class Drone {
     }
 
     create_map(taille_map) {
+        //créée la map individuelle du drone
         let map = new Array(taille_map);
         for (let i = 0; i < taille_map; i += 1) {
             map[i] = new Array(taille_map);
@@ -377,6 +370,7 @@ export class Drone {
 
 
     copierInfosManquantesDansCarte() {
+        //met à jour la la carte lors du passage à la base
         //reset de la map des feux
         this.#feux = new Map();
         for (let i = 0; i < vraie_map.length; i++) {
