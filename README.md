@@ -4,7 +4,7 @@
 
 ## 1 - Lancer le projet
 
-Pour lancer notre projet il faut lancer l'index html via un live server (Go live de VSCODE,  Codium etc).  
+Pour lancer notre projet il faut se placer à la racine du projet et lancer l'index html via un live server (Go live de VSCODE,  Codium etc).  
 Ou alors un lancer un serveur web en local depuis la racine du projet par exemple avec Python :
 
 ```python
@@ -22,7 +22,7 @@ Les feux sont éteints par les drones lorsqu'ils se positionnent dessus en ayant
 Les humains sont sauvés dès qu'ils se trouvent dans le champ de vision d'un drone. A ce moment, le drone appelle des secours qui viennent les sauvés (non visible dans la simulation)
 *Ce que l'on nomme 'base' dans le projet c'est le centre de contrôle.*
 
-### Mesures d'efficacité des drones
+### Affichage de l'efficacité des drones
 
 Pendant la simulation, 3 compteurs sont affichés qui permettent de mesure l'efficacté de la configuration des drones
 
@@ -39,6 +39,7 @@ Il est possible de changer plusieurs paramètres via des inputs range avant de l
 **La vitesse**   il s'agit du temps absolu en ms pour chaque itération de la simulation, donc contre intuitivement plus on met cet input faible plus la simulation sera rapide.  
 **Carburant** il s'agit de l'autonomie qu'a chaque drone avant de revenir à la base idéalement mis à 30 pour respecter la consigne.  
 **Distance de détection des autres drones** les drones cherchent à s'éviter entre eux pour optimiser l'exploration, ce paramètre sert à régler la distance de detection entre eux.
+**Evitement** Permet d'autoriser ou non aux drones de se rendre sur une cases où un autre drone est déjà présent
   
 On imagine par exemple que les drones ont des interactions locales entre eux via des ondes, alors qu'ils doivent découvrir l'environnement via des capteurs visuels, c'est pourquoi que la **distance de détection des autres drones** et la **distance de vision** sont deux choses distinctes.
 
@@ -58,3 +59,11 @@ A tout moment vous pouvez réinitialiser et revenir à l'écran de sélection de
 **Le fichier Simulation.js** contient la classe qui encapsule la logique d'une simulation , update à chaque itération , propagation ... Une Simulation contient évidemment un Array de Drone. C'est la classe Simulation qui contient la carte du centre de controle mis à jour par chaque drone à chaque fois qu'il revient à la base.  
 **Le fichier Drone.js** Probablement le fichier le plus important du projet car il contient la classe Drone qui encapsule la logique d'un drone, et quel comportement et interaction il aura avec l'environnement, la base, les autres drones...  
 **Le fichier create_map.js** Un module utilitaire pour générer des tableaux à deux dimensions vides, qui nous servent dans drone.js, index.js, Simulation.js comme structure de donnée pour représenter la carte de la simulation.
+
+**Le répertoire modele_de_tests** contient une version du projet permettant d'effectuer des tests en séries pour évaluer les paramètres
+**Le fichier Resultats_tests.ods** contient des tableaux avec les résultats des tests que nous avons menés
+
+## Faire des tests
+
+Pour faire des tests permettant de connaître l'impact de chaque paramètre, il faut ouvrir le fichier modele_de_tests/index.html dans un server web.
+Puis configurer les paramètres voulus. Les informations s'afficheront dans la console du navigateur
