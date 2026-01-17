@@ -5,7 +5,7 @@
 ## 1 - Lancer le projet
 
 Pour lancer notre projet il faut lancer l'index html via un live server (Go live de VSCODE,  Codium etc).  
-Ou alors un lancer un serveur web en locale depuis la racine du projet par exemple avec Python :
+Ou alors un lancer un serveur web en local depuis la racine du projet par exemple avec Python :
 
 ```python
     python3 -m http.server 8000
@@ -15,10 +15,20 @@ Puis dans un navigateur aller à l'url `http://127.0.0.1:8000/`
 
 ## 2 - Faire des simulations
 
-On se retrouve face à une carte en SVG   avec une base au centre, des arbres verts, et des anomalies rouges (feux) ainsi que des anomalies jaunes (humains blessés).  
+On se retrouve face à une carte en SVG avec une base au centre, des arbres verts, et des anomalies rouges (feux) ainsi que des anomalies jaunes (humains blessés).  
 La carte est assombrie et s'éclaircira au fur et à mesures ques les drones decouvriront des cases.  
-Les anomalies sont placées aléatoirement à chaque reload de la page.  
+Les anomalies sont placées aléatoirement à chaque rechargement de la page.
+Les feux sont éteints par les drones lorsqu'ils se positionnent dessus en ayant encore du carburant.
+Les humains sont sauvés dès qu'ils se trouvent dans le champ de vision d'un drone. A ce moment, le drone appelle des secours qui viennent les sauvés (non visible dans la simulation)
 *Ce que l'on nomme 'base' dans le projet c'est le centre de contrôle.*
+
+### Mesures d'efficacité des drones
+
+Pendant la simulation, 3 compteurs sont affichés qui permettent de mesure l'efficacté de la configuration des drones
+
+- Humains sauvés montre combien de personnes ont pu être détectées à temps par les drones pour envoyer des secours
+- Humains brulés montre combien de personnes n'ont pas été reprérées à temps par les drones
+- Arbres brûlés montre combien d'arbres on pris feu pendant la simulation.
 
 ### Paramètres
 
