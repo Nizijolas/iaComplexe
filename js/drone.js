@@ -1,5 +1,5 @@
 //ici faire la logique pour un drone
-import { base, cases_en_feu, vraie_map } from "./index.js";
+import { base, cases_en_feu, evitement, vraie_map } from "./index.js";
 export class Drone {
 
     //Attributs du drone
@@ -124,12 +124,10 @@ export class Drone {
         if (cases_inconnues.length > 0) {
             //si il y en a plusieurs, on choisi la plus éloignée d'un autre drone
             let meilleure_case_iconnue = this.get_meilleure_case_inconnue(cases_inconnues);
-            console.log("case à explorer")
             return (meilleure_case_iconnue)
         }
         //4 - on regarde si on a une "grande direction" (objectif par défaut), si non, on en demande une
         if (this.#basic_goal == null) {
-            console.log("get random goal !")
             this.get_random_goal();
         }
         return this.#basic_goal;
@@ -170,7 +168,6 @@ export class Drone {
         //renvoie la case inconnue la plus éloignée des autres drones détectés
         let distance_max = 0;
         let meilleures_cases = [cases_inconnues[0]];
-        console.log(this.#close_drones)
         for (let i = 0; i < cases_inconnues.length; i += 1) {
             this.#close_drones.forEach(drone => {
                 let distance = this.get_distance_entre(cases_inconnues[i], drone);
@@ -209,15 +206,17 @@ export class Drone {
                             this.#feux.set(`${i}:${j}`, { x: i, y: j });
                         }
                         //Si il n'y a pas d'autre drone dessus, on le met dans les feux proches
-                        if (!this.#simulation.drone_at(i, j)) {
-                            close_fires.push({ x: i, y: j });
+                        if (evitement == true) {
+                            if (!this.#simulation.drone_at(i, j)) {
+                                close_fires.push({ x: i, y: j });
+                            }
                         }
                     }
                     if (this.#map[i][j] == "cendres" && this.#feux.get(`${i}:${j}`)) {
                         //Un feu est devenu cendres, on le retire de la liste des feux
                         this.#feux.delete(`${i}:${j}`);
                     }
-                    if(this.#map[i][j] == "humain"){ 
+                    if (this.#map[i][j] == "humain") {
                         //On a trouvé un humain avant qu'il soit brûlé alors il est sauvé on transforme la case en arbre
                         this.#map[i][j] = "arbre";
                         vraie_map[i][j] = "arbre"
@@ -240,7 +239,6 @@ export class Drone {
                     j >= 0 && j < vraie_map.length) {
 
                     if (this.#simulation.drone_at(i, j)) {
-                        console.log(`drone trouvé en ${i}:${j}`)
                         close_drones.push({ x: i, y: j })
                     }
                 }
@@ -254,7 +252,6 @@ export class Drone {
     get_random_goal() {
         //on regarde sur la map si il reste des cases inexplorées
         let random_sens = Math.round(Math.random() * 10) % 4; //pour voir dans quel sens on va aller et mettre un peu d'aléatoire
-        console.log(`random sens = ${random_sens}`)
 
         for (let i = 0; i < this.#map.length && this.#basic_goal == null; i += 1) {
             for (let j = 0; j < this.#map.length && this.#basic_goal == null; j += 1) {

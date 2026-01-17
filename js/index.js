@@ -7,6 +7,7 @@ export const base = { x: Math.round(tailleMap / 2), y: Math.round(tailleMap / 2)
 export var vraie_map;
 export var base_map;
 export var cases_en_feu = new Map();
+export var evitement = true;
 
 function fill_vraie_map() {
     //Création de la matrice qui représente la carte et remplissage avec la base et les arbres
@@ -37,8 +38,7 @@ function fill_vraie_map() {
             randomX = Math.floor(Math.random() * tailleMap);
             randomY = Math.floor(Math.random() * tailleMap);
         }
-        console.log(randomX)
-        console.log(randomY)
+
         vraie_map[randomX][randomY] = "feu";
         cases_en_feu.set(`${randomX}:${randomY}`, { x: randomX, y: randomY })
 
@@ -54,8 +54,7 @@ function fill_vraie_map() {
             randomX = Math.floor(Math.random() * tailleMap);
             randomY = Math.floor(Math.random() * tailleMap);
         }
-        console.log(randomX)
-        console.log(randomY)
+
         vraie_map[randomX][randomY] = "humain";
     }
 
@@ -121,7 +120,16 @@ const detection = document.getElementById("detectionDrones");
 const carburant = document.getElementById("carburant");
 const propagation = document.getElementById("propagation");
 const statistiques = document.getElementById("statistiques");
+const evitementCheckBox = document.getElementById("evitement");
 
+evitementCheckBox.addEventListener("change", () => {
+    if (evitementCheckBox.checked) {
+        evitement = true;
+    } else {
+        evitement = false;
+    }
+
+})
 
 lancerSimulation.addEventListener("click", () => {
     //lancement de la simuation en mode continue (pas step by step)
@@ -133,7 +141,7 @@ lancerSimulation.addEventListener("click", () => {
     }
     else { //On lance ( ou relance ) la simulation 
         stepByStep.style.display = "none";
-        console.log(vraie_map[base.x][base.y])
+
         if (!simulation) {
             // si simulation est undefined c'est que c'est le début sinon c'est qu'on avait mis sur pause;
             simulation = new Simulation(Number(propagation.value), Number(nb_drones.value), Number(vision.value), Number(detection.value), Number(carburant.value));

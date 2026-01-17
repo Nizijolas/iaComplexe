@@ -1,5 +1,5 @@
 import { Drone } from "./drone.js";
-import { base, cases_en_feu, vraie_map } from "./index.js";
+import { base, cases_en_feu, evitement, vraie_map } from "./index.js";
 
 
 export class Simulation {
@@ -15,6 +15,7 @@ export class Simulation {
     #arbresBrules = 10;
 
     constructor(propagation, nb_drones, taille_vision, taille_detection, carburant) {
+        console.log(`Création d'une simulation avec ${nb_drones} drones, propagation de ${propagation}, distance de vision : ${taille_vision}, distance de détection de ${taille_detection} et carburant de ${carburant}. Evitement = ${evitement}`)
         this.#casesConnues = 1; //la base est connue
         this.#carteCentreControle = this.create_map(vraie_map.length); //Création carte de la base
         this.#propagation = propagation;
@@ -112,7 +113,7 @@ export class Simulation {
                     Math.floor(Math.random() * 3) % 3 == 0) { //une chance sur 3 de mettre le feu
                     this.#cases_a_ajouter_au_feu.push({ x: i, y: j });
                     let elem = document.getElementById(`${i}:${j}`);
-                    if (vraie_map[i][j] == "arbre" ){ // <--------------------- ici pour les arbres brûlés
+                    if (vraie_map[i][j] == "arbre") { // <--------------------- ici pour les arbres brûlés
                         elem.classList.replace("arbre", "feu");
                         this.ajouterArbreBrule();
                     }
